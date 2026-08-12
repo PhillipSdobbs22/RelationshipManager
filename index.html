@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Harbor Ledger — Business Relationship Manager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0F2A3F;
+    --harbor:#1B4965;
+    --seafoam:#5FA8A0;
+    --brass:#C08B3E;
+    --brass-light:#DDB671;
+    --cream:#F7F5F0;
+    --paper:#FFFFFF;
+    --ink:#1A1D1F;
+    --ink-soft:#5A6570;
+    --line:#E3E0D8;
+    --danger:#B4534A;
+    --good:#4C8C6E;
+    --warn:#C08B3E;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--cream);color:var(--ink);font-family:'Inter',sans-serif;}
+  ::selection{background:var(--seafoam);color:var(--navy);}
+  h1,h2,h3,h4{font-family:'Fraunces',serif;margin:0;font-weight:600;letter-spacing:-0.01em;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  button{font-family:inherit;cursor:pointer;}
+  input,select,textarea{font-family:inherit;}
+
+  #app{display:flex;min-height:100vh;}
+
+  /* Sidebar */
+  #sidebar{
+    width:230px;flex-shrink:0;background:var(--navy);color:var(--cream);
+    display:flex;flex-direction:column;padding:24px 0;position:sticky;top:0;height:100vh;
+  }
+  .brand{padding:0 22px 22px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:18px;}
+  .brand-mark{display:flex;align-items:center;gap:10px;}
+  .brand-mark svg{flex-shrink:0;}
+  .brand h1{font-size:19px;color:var(--cream);line-height:1.15;}
+  .brand .tag{font-size:10.5px;color:var(--brass-light);letter-spacing:0.08em;text-transform:uppercase;margin-top:5px;font-family:'Inter';font-weight:600;}
+  nav{display:flex;flex-direction:column;gap:2px;padding:0 12px;}
+  nav button{
+    display:flex;align-items:center;gap:10px;background:none;border:none;color:rgba(247,245,240,0.72);
+    text-align:left;padding:10px 12px;border-radius:8px;font-size:14px;font-weight:500;transition:all .15s;
+  }
+  nav button:hover{background:rgba(255,255,255,0.06);color:var(--cream);}
+  nav button.active{background:var(--harbor);color:var(--cream);}
+  nav button svg{flex-shrink:0;opacity:0.85;}
+  .sidebar-foot{margin-top:auto;padding:14px 22px 0;border-top:1px solid rgba(255,255,255,0.1);font-size:11px;color:rgba(247,245,240,0.45);line-height:1.5;}
+
+  /* Main */
+  #main{flex:1;padding:36px 44px;max-width:1180px;}
+  .view{display:none;}
+  .view.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  .view-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:26px;gap:20px;flex-wrap:wrap;}
+  .view-head h2{font-size:28px;color:var(--navy);}
+  .view-head p{margin:6px 0 0;color:var(--ink-soft);font-size:14px;max-width:560px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:7px;background:var(--brass);color:var(--navy);border:none;
+    padding:10px 16px;border-radius:8px;font-weight:600;font-size:13.5px;transition:background .15s;white-space:nowrap;
+  }
+  .btn:hover{background:var(--brass-light);}
+  .btn.secondary{background:transparent;border:1.5px solid var(--line);color:var(--ink);}
+  .btn.secondary:hover{border-color:var(--harbor);color:var(--harbor);}
+  .btn.small{padding:6px 12px;font-size:12.5px;}
+  .btn.danger{background:transparent;color:var(--danger);border:1.5px solid rgba(180,83,74,0.35);}
+  .btn.danger:hover{background:rgba(180,83,74,0.08);}
+
+  /* Cards / grid */
+  .grid{display:grid;gap:16px;}
+  .grid.stats{grid-template-columns:repeat(4,1fr);margin-bottom:28px;}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;}
+  .stat-card .label{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);font-weight:600;}
+  .stat-card .value{font-family:'Fraunces',serif;font-size:30px;color:var(--navy);margin-top:6px;}
+  .stat-card .sub{font-size:12px;color:var(--ink-soft);margin-top:4px;}
+
+  .section-title{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--harbor);font-weight:700;margin:30px 0 12px;}
+  .section-title:first-child{margin-top:0;}
+
+  /* Client list */
+  .client-row{
+    display:grid;grid-template-columns:auto 1fr auto auto auto auto;gap:16px;align-items:center;
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:14px 18px;margin-bottom:9px;cursor:pointer;
+    transition:border-color .15s, transform .1s;
+  }
+  .client-row:hover{border-color:var(--seafoam);}
+  .ring{width:42px;height:42px;flex-shrink:0;}
+  .client-name{font-family:'Fraunces',serif;font-size:16px;color:var(--navy);font-weight:600;}
+  .client-meta{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+  .badge{
+    font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em;
+  }
+  .badge.stage-prospect{background:#EEF1E4;color:#6B7A3E;}
+  .badge.stage-onboarding{background:#EAF1F3;color:var(--harbor);}
+  .badge.stage-active{background:#E7F1EA;color:var(--good);}
+  .badge.stage-atrisk{background:#F5E8E6;color:var(--danger);}
+  .figure{text-align:right;}
+  .figure .num{font-family:'JetBrains Mono';font-size:14px;color:var(--navy);font-weight:500;}
+  .figure .lbl{font-size:10.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;}
+
+  .toolbar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+  .toolbar input, .toolbar select{
+    border:1.5px solid var(--line);border-radius:8px;padding:9px 12px;font-size:13.5px;background:var(--paper);color:var(--ink);
+  }
+  .toolbar input{flex:1;min-width:180px;}
+
+  /* Detail drawer */
+  #overlay{position:fixed;inset:0;background:rgba(15,42,63,0.35);display:none;z-index:40;}
+  #overlay.active{display:block;}
+  #drawer{
+    position:fixed;top:0;right:0;width:min(520px,92vw);height:100vh;background:var(--paper);z-index:41;
+    transform:translateX(100%);transition:transform .25s ease;overflow-y:auto;box-shadow:-8px 0 30px rgba(0,0,0,0.15);
+  }
+  #drawer.active{transform:translateX(0);}
+  .drawer-head{padding:26px 26px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);z-index:2;}
+  .drawer-close{position:absolute;top:22px;right:22px;background:none;border:none;font-size:20px;color:var(--ink-soft);}
+  .drawer-body{padding:22px 26px 40px;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600;}
+  .field input, .field select, .field textarea{
+    border:1.5px solid var(--line);border-radius:7px;padding:8px 10px;font-size:13.5px;background:var(--cream);
+  }
+  .field textarea{resize:vertical;min-height:60px;}
+  .note-item{border-left:2.5px solid var(--seafoam);padding:8px 0 8px 12px;margin-bottom:10px;}
+  .note-item .date{font-size:11px;color:var(--ink-soft);font-family:'JetBrains Mono';}
+  .note-item p{margin:3px 0 0;font-size:13.5px;line-height:1.5;}
+  .product-chip{
+    display:inline-block;background:var(--cream);border:1px solid var(--line);border-radius:20px;padding:5px 12px;
+    font-size:12px;margin:0 6px 6px 0;color:var(--harbor);font-weight:500;
+  }
+  .product-chip.held{background:#E7F1EA;border-color:transparent;color:var(--good);font-weight:600;}
+
+  /* Product catalog */
+  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .prod-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:20px;}
+  .prod-card .cat-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--brass);font-weight:700;margin-bottom:6px;}
+  .prod-card h3{font-size:17px;color:var(--navy);margin-bottom:8px;}
+  .prod-card p{font-size:13.5px;color:var(--ink-soft);line-height:1.55;margin:0 0 10px;}
+  .prod-card ul{margin:0;padding-left:18px;font-size:13px;color:var(--ink);line-height:1.7;}
+  .prod-card .use-case{font-size:12.5px;background:var(--cream);border-radius:7px;padding:9px 11px;margin-top:10px;color:var(--ink-soft);font-style:italic;}
+
+  /* Tasks */
+  .task-row{
+    display:flex;align-items:center;gap:14px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    padding:13px 16px;margin-bottom:8px;
+  }
+  .task-row.done{opacity:0.5;}
+  .task-row.done .task-title{text-decoration:line-through;}
+  .checkbox{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--paper);}
+  .checkbox.checked{background:var(--good);border-color:var(--good);}
+  .task-title{font-size:14px;font-weight:500;color:var(--ink);}
+  .task-client{font-size:12px;color:var(--seafoam);font-weight:600;}
+  .task-due{margin-left:auto;font-size:12px;color:var(--ink-soft);font-family:'JetBrains Mono';white-space:nowrap;}
+  .task-due.overdue{color:var(--danger);font-weight:600;}
+
+  .empty{text-align:center;padding:60px 20px;color:var(--ink-soft);}
+  .empty h3{color:var(--navy);margin-bottom:6px;}
+
+  .loading-note{font-size:12px;color:var(--ink-soft);padding:10px 0;}
+
+  @media (max-width:820px){
+    #app{flex-direction:column;}
+    #sidebar{width:100%;height:auto;position:relative;flex-direction:row;align-items:center;padding:14px 16px;overflow-x:auto;}
+    .brand{border:none;padding:0 14px 0 0;margin:0;}
+    .brand .tag{display:none;}
+    nav{flex-direction:row;padding:0;}
+    .sidebar-foot{display:none;}
+    #main{padding:22px 18px;}
+    .grid.stats{grid-template-columns:1fr 1fr;}
+    .cat-grid{grid-template-columns:1fr;}
+    .client-row{grid-template-columns:auto 1fr;row-gap:8px;}
+    .client-row .figure, .client-row .badge{grid-column:2;justify-self:start;}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <aside id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+          <circle cx="15" cy="15" r="13" stroke="#DDB671" stroke-width="1.6"/>
+          <path d="M15 5V25M6 12H24M6 18H24" stroke="#DDB671" stroke-width="1.2" opacity="0.55"/>
+          <circle cx="15" cy="15" r="3.2" fill="#DDB671"/>
+        </svg>
+        <h1>Harbor Ledger</h1>
+      </div>
+      <div class="tag">BRM Workbench · Proof of Concept</div>
+    </div>
+    <nav id="nav">
+      <button data-view="dashboard" class="active">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="8" width="3.5" height="6.5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="6.5" y="4" width="3.5" height="10.5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="11.5" y="1.5" width="3.5" height="13" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+        Dashboard
+      </button>
+      <button data-view="clients">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5.5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 14c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4" stroke="currentColor" stroke-width="1.3"/><circle cx="11.5" cy="5" r="2" stroke="currentColor" stroke-width="1.2" opacity="0.7"/><path d="M10 9.3c1.9.2 3.5 1.5 3.5 3.7" stroke="currentColor" stroke-width="1.2" opacity="0.7"/></svg>
+        Client Portfolio
+      </button>
+      <button data-view="products">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 6.5H14" stroke="currentColor" stroke-width="1.3"/><path d="M5 9.5H11" stroke="currentColor" stroke-width="1.2"/></svg>
+        Product Catalog
+      </button>
+      <button data-view="tasks">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 8.3L7 10.3L11 5.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Follow-Ups
+      </button>
+    </nav>
+    <div class="sidebar-foot">
+      Simulated data — Pensacola / Baldwin County corridor. Fictional businesses, illustrative figures for demonstration only.
+      <br><button id="reset-data-btn" style="background:none;border:none;color:var(--brass-light);text-decoration:underline;padding:8px 0 0;font-size:11px;cursor:pointer;">Reset demo data</button>
+    </div>
+  </aside>
+
+  <main id="main">
+
+    <!-- DASHBOARD -->
+    <section id="view-dashboard" class="view active">
+      <div class="view-head">
+        <div>
+          <h2>Portfolio Overview</h2>
+          <p>A snapshot of your book of business across the Pensacola–Baldwin County market.</p>
+        </div>
+      </div>
+      <div class="grid stats" id="stat-cards"></div>
+
+      <div class="section-title">Relationships needing attention</div>
+      <div id="attention-list"></div>
+
+      <div class="section-title">Upcoming follow-ups</div>
+      <div id="dash-tasks"></div>
+    </section>
+
+    <!-- CLIENTS -->
+    <section id="view-clients" class="view">
+      <div class="view-head">
+        <div>
+          <h2>Client Portfolio</h2>
+          <p>Simulated commercial relationships across defense/marine, tourism, healthcare, agriculture, and construction sectors.</p>
+        </div>
+        <button class="btn" id="add-client-btn">+ New Client</button>
+      </div>
+      <div class="toolbar">
+        <input type="text" id="search-input" placeholder="Search by business name or industry…">
+        <select id="stage-filter">
+          <option value="">All stages</option>
+          <option value="prospect">Prospect</option>
+          <option value="onboarding">Onboarding</option>
+          <option value="active">Active</option>
+          <option value="atrisk">At Risk</option>
+        </select>
+      </div>
+      <div id="client-list"></div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section id="view-products" class="view">
+      <div class="view-head">
+        <div>
+          <h2>Business Banking Product Catalog</h2>
+          <p>Reference set of core commercial product lines — useful for matching client needs and for interview prep.</p>
+        </div>
+      </div>
+      <div class="cat-grid" id="product-catalog"></div>
+    </section>
+
+    <!-- TASKS -->
+    <section id="view-tasks" class="view">
+      <div class="view-head">
+        <div>
+          <h2>Follow-Ups &amp; Tasks</h2>
+          <p>Action items tied to client relationships, sorted by due date.</p>
+        </div>
+        <button class="btn" id="add-task-btn">+ New Task</button>
+      </div>
+      <div id="task-list"></div>
+    </section>
+
+  </main>
+</div>
+
+<div id="overlay"></div>
+<div id="drawer"></div>
+
+<script>
+/* ---------------- DATA MODEL ---------------- */
+
+const PRODUCTS = [
+  {cat:"Deposit & Cash Management", name:"Business Analyzed Checking", desc:"Core operating account for businesses with high transaction volume; earnings credit offsets monthly service and cash management fees.", features:["Earnings credit rate applied against balances","Detailed account analysis statement","Integrates with ACH & wire modules"], use:"Fit for a marina operator running daily card and cash deposits during peak season."},
+  {cat:"Deposit & Cash Management", name:"Treasury / Cash Management Suite", desc:"Bundles remote deposit capture, ACH origination, positive pay, and sweep accounts to automate receivables and protect against fraud.", features:["Remote deposit capture","Positive pay & payee match","Zero-balance / sweep accounts"], use:"Fit for a multi-location healthcare group consolidating deposits from several clinics."},
+  {cat:"Deposit & Cash Management", name:"Merchant Services", desc:"Card acceptance and payment processing integrated with the business's operating account for faster funds availability.", features:["Card-present & e-commerce processing","Next-day funding options","POS and integrated payment terminals"], use:"Fit for tourism/hospitality clients (charter boats, rental properties) with seasonal card volume."},
+  {cat:"Lending", name:"SBA 7(a) / 504 Loans", desc:"Government-guaranteed financing for working capital, equipment, or owner-occupied commercial real estate, typically with lower down payments.", features:["Longer amortization than conventional loans","Lower equity injection requirement","504 pairs a bank loan with a CDC debenture for real estate/equipment"], use:"Fit for a growing contractor purchasing a new fabrication facility in Baldwin County."},
+  {cat:"Lending", name:"Commercial Real Estate Loans", desc:"Financing for the purchase, refinance, or construction of income-producing or owner-occupied commercial property.", features:["Fixed or variable rate structures","Loan-to-value typically 65-80%","Construction-to-permanent options available"], use:"Fit for a hospitality operator expanding a beachfront rental portfolio near Perdido Key."},
+  {cat:"Lending", name:"Business Line of Credit", desc:"Revolving credit facility for short-term working capital needs, seasonal inventory, or bridging receivables timing gaps.", features:["Draw and repay as needed","Often secured by receivables/inventory","Useful for smoothing seasonal cash flow"], use:"Fit for a seafood distributor financing inventory ahead of tourist season."},
+  {cat:"Lending", name:"Equipment Financing", desc:"Term financing secured by the equipment being purchased — vessels, medical devices, construction machinery.", features:["Equipment serves as collateral","Fixed terms matched to useful life","Can include soft costs (installation, training)"], use:"Fit for a marine services company financing a new haul-out lift."},
+  {cat:"Government & Defense", name:"Government Contracting Banking", desc:"Specialized support for businesses holding federal/DoD contracts — bonding-related deposit accounts, payment timing solutions given NAS Pensacola-area contractor base.", features:["Escrow / bonding-related accounts","Progress billing cash flow bridge lines","Familiarity with government payment cycles"], use:"Fit for an aerospace maintenance subcontractor serving Naval Air Station Pensacola."},
+  {cat:"Specialty / Advisory", name:"International & Trade Services", desc:"Letters of credit, foreign exchange, and trade finance for businesses importing/exporting goods (e.g., marine equipment, seafood).", features:["Standby & commercial letters of credit","Foreign currency exchange","Trade finance / documentary collections"], use:"Fit for a boat parts distributor importing components from overseas manufacturers."},
+  {cat:"Specialty / Advisory", name:"Retirement & Employee Benefit Plans", desc:"401(k) and benefit plan services offered to business owners as a relationship deepening and retention tool.", features:["Plan design consultation","Payroll integration","Owner & employee education sessions"], use:"Fit for an established healthcare practice looking to improve staff retention."},
+  {cat:"Specialty / Advisory", name:"Business Credit Card Program", desc:"Corporate card programs with expense controls, rewards, and reporting for expense management.", features:["Individual spend limits & controls","Rewards aligned to business spend categories","Expense reporting integration"], use:"Fit for a construction firm managing multiple project-based expense accounts."},
+  {cat:"Insurance & Risk", name:"Key Person / Business Insurance Referral", desc:"Referral partnership for business insurance and key-person coverage, often bundled into a full relationship review.", features:["Coordinated with lending covenants","Reviewed at annual relationship checkpoints","Cross-sell opportunity during onboarding"], use:"Fit for a founder-dependent business as a condition of a term loan covenant."},
+];
+
+const INDUSTRIES = ["Marine & Boating Services","Defense & Aerospace Contracting","Tourism & Hospitality","Healthcare Services","Agriculture & Agribusiness","Construction & Real Estate","Seafood & Food Distribution","Professional Services"];
+const NEIGHBORHOODS = ["Downtown Pensacola, FL","Gulf Breeze, FL","Perdido Key, FL","Pace, FL","Milton, FL","Fairhope, AL","Foley, AL","Daphne, AL","Robertsdale, AL","Orange Beach, AL"];
+
+function seedClients(){
+  const names = [
+    ["Perdido Key Marine Supply","Marine & Boating Services"],
+    ["Bayfront Aerospace Maintenance LLC","Defense & Aerospace Contracting"],
+    ["Emerald Coast Charter Fleet","Tourism & Hospitality"],
+    ["Fairhope Family Dental Group","Healthcare Services"],
+    ["Baldwin County Produce Co-op","Agriculture & Agribusiness"],
+    ["Gulf Breeze Site Contractors","Construction & Real Estate"],
+    ["Milton Seafood Distributors","Seafood & Food Distribution"],
+    ["Pensacola Bay Legal Partners","Professional Services"],
+    ["Foley Coastal Rentals","Tourism & Hospitality"],
+    ["Orange Beach Marine Fabrication","Marine & Boating Services"],
+    ["Robertsdale Ag Equipment Rentals","Agriculture & Agribusiness"],
+    ["Downtown Pensacola Urgent Care","Healthcare Services"],
+    ["Daphne Structural Builders","Construction & Real Estate"],
+    ["NAS Corridor Precision Machining","Defense & Aerospace Contracting"],
+    ["Pace Family Wellness Clinic","Healthcare Services"],
+  ];
+  const stages = ["prospect","onboarding","active","active","active","atrisk"];
+  const products = PRODUCTS.map(p=>p.name);
+  const today = new Date();
+  return names.map((n,i)=>{
+    const stage = stages[i % stages.length];
+    const health = stage==="atrisk" ? 25+Math.floor(Math.random()*20) : stage==="prospect" ? 40+Math.floor(Math.random()*20) : 65+Math.floor(Math.random()*30);
+    const deposits = Math.round((80+Math.random()*2200))*1000;
+    const revenue = Math.round((0.6+Math.random()*8)*10)/10;
+    const heldCount = stage==="prospect" ? 0 : 1+Math.floor(Math.random()*4);
+    const heldProducts = [...products].sort(()=>0.5-Math.random()).slice(0,heldCount);
+    const lastContact = new Date(today.getTime() - Math.floor(Math.random()*40)*86400000);
+    const nextFollow = new Date(today.getTime() + Math.floor((stage==="atrisk"?-3:1)+Math.random()*20)*86400000);
+    return {
+      id:"c"+(i+1),
+      name:n[0],
+      industry:n[1],
+      location:NEIGHBORHOODS[i % NEIGHBORHOODS.length],
+      stage,
+      health,
+      deposits,
+      revenue,
+      employees: 4+Math.floor(Math.random()*140),
+      heldProducts,
+      primaryContact: ["Owner/Principal","CFO","General Manager","Controller","Managing Partner"][i%5],
+      phone: "(850) "+String(200+Math.floor(Math.random()*700))+"-"+String(1000+Math.floor(Math.random()*8999)),
+      email: n[0].toLowerCase().replace(/[^a-z0-9]+/g,"")+"@example-biz.com",
+      lastContact: lastContact.toISOString().slice(0,10),
+      nextFollow: nextFollow.toISOString().slice(0,10),
+      notes:[
+        {date: lastContact.toISOString().slice(0,10), text:"Initial relationship review — discussed current banking needs and growth plans for the season."}
+      ]
+    };
+  });
+}
+
+function seedTasks(clients){
+  const verbs = ["Call to review Q3 deposit activity","Send proposal for treasury management suite","Schedule site visit","Follow up on SBA loan application status","Introduce merchant services rep","Deliver annual relationship review","Confirm signers on new account","Check in after equipment purchase"];
+  const today = new Date();
+  return clients.slice(0,10).map((c,i)=>{
+    const due = new Date(today.getTime() + (i-3)*86400000);
+    return {
+      id:"t"+(i+1),
+      clientId:c.id,
+      clientName:c.name,
+      title:verbs[i % verbs.length],
+      due: due.toISOString().slice(0,10),
+      done: i>7
+    };
+  });
+}
+
+let STATE = { clients:[], tasks:[] };
+
+/* ---------------- STORAGE ---------------- */
+/* Uses localStorage (browser-native, works on GitHub Pages / any static host).
+   Data persists per-browser, per-device — it does not sync across devices
+   and is not sent anywhere. Clearing browser data will reset it. */
+const STORAGE_KEY = 'harbor-ledger-brm-state';
+
+async function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      STATE = JSON.parse(raw);
+      return;
+    }
+  }catch(e){ console.error('load failed', e); }
+  const clients = seedClients();
+  STATE = { clients, tasks: seedTasks(clients) };
+  await saveState();
+}
+async function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
+  }catch(e){ console.error('save failed', e); }
+}
+
+function resetDemoData(){
+  if(!confirm('Reset all data back to the original simulated demo set? This clears any edits you\'ve made.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+/* ---------------- UTIL ---------------- */
+function fmtMoney(n){ return "$"+n.toLocaleString('en-US'); }
+function fmtDate(d){ const dt=new Date(d+"T00:00:00"); return dt.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function daysUntil(d){ return Math.round((new Date(d+"T00:00:00")-new Date(new Date().toDateString()))/86400000); }
+function stageLabel(s){ return {prospect:"Prospect",onboarding:"Onboarding",active:"Active",atrisk:"At Risk"}[s]; }
+function healthColor(h){ return h>=65 ? 'var(--good)' : h>=40 ? 'var(--warn)' : 'var(--danger)'; }
+
+function healthRing(h){
+  const r=17, c=2*Math.PI*r, off = c*(1-h/100);
+  const col = healthColor(h);
+  return `<svg class="ring" viewBox="0 0 42 42">
+    <circle cx="21" cy="21" r="${r}" fill="none" stroke="var(--line)" stroke-width="4.5"/>
+    <circle cx="21" cy="21" r="${r}" fill="none" stroke="${col}" stroke-width="4.5" stroke-linecap="round"
+      stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 21 21)"/>
+    <text x="21" y="24.5" text-anchor="middle" font-size="11" font-family="JetBrains Mono" fill="${col}" font-weight="600">${h}</text>
+  </svg>`;
+}
+
+/* ---------------- RENDER: DASHBOARD ---------------- */
+function renderDashboard(){
+  const c = STATE.clients;
+  const active = c.filter(x=>x.stage==="active"||x.stage==="atrisk");
+  const totalDeposits = c.reduce((s,x)=>s+x.deposits,0);
+  const avgHealth = Math.round(c.reduce((s,x)=>s+x.health,0)/c.length);
+  const atRisk = c.filter(x=>x.stage==="atrisk");
+  const prospects = c.filter(x=>x.stage==="prospect");
+
+  document.getElementById('stat-cards').innerHTML = `
+    <div class="card stat-card"><div class="label">Total Relationships</div><div class="value">${c.length}</div><div class="sub">${active.length} active · ${prospects.length} prospects</div></div>
+    <div class="card stat-card"><div class="label">Portfolio Deposits</div><div class="value">${fmtMoney(totalDeposits)}</div><div class="sub">Simulated aggregate balance</div></div>
+    <div class="card stat-card"><div class="label">Avg. Relationship Health</div><div class="value" style="color:${healthColor(avgHealth)}">${avgHealth}</div><div class="sub">Composite score, 0–100</div></div>
+    <div class="card stat-card"><div class="label">At-Risk Accounts</div><div class="value" style="color:var(--danger)">${atRisk.length}</div><div class="sub">Needs retention outreach</div></div>
+  `;
+
+  const attention = [...atRisk, ...prospects.slice(0,2)];
+  document.getElementById('attention-list').innerHTML = attention.length ? attention.map(clientRowHTML).join('') : `<div class="empty"><h3>All clear</h3><p>No relationships currently flagged.</p></div>`;
+
+  const upcoming = [...STATE.tasks].filter(t=>!t.done).sort((a,b)=>a.due.localeCompare(b.due)).slice(0,5);
+  document.getElementById('dash-tasks').innerHTML = upcoming.length ? upcoming.map(taskRowHTML).join('') : `<div class="empty"><h3>Nothing due</h3><p>No open follow-ups.</p></div>`;
+
+  bindRowEvents();
+}
+
+function clientRowHTML(cl){
+  return `<div class="client-row" data-id="${cl.id}">
+    ${healthRing(cl.health)}
+    <div>
+      <div class="client-name">${cl.name}</div>
+      <div class="client-meta">${cl.industry} · ${cl.location}</div>
+    </div>
+    <span class="badge stage-${cl.stage}">${stageLabel(cl.stage)}</span>
+    <div class="figure"><div class="num">${fmtMoney(cl.deposits)}</div><div class="lbl">Deposits</div></div>
+    <div class="figure"><div class="num">$${cl.revenue}M</div><div class="lbl">Est. Revenue</div></div>
+    <div class="figure"><div class="num">${fmtDate(cl.nextFollow)}</div><div class="lbl">Next Follow-up</div></div>
+  </div>`;
+}
+
+function taskRowHTML(t){
+  const d = daysUntil(t.due);
+  const overdue = d<0 && !t.done;
+  return `<div class="task-row ${t.done?'done':''}" data-id="${t.id}">
+    <div class="checkbox ${t.done?'checked':''}" data-task="${t.id}">${t.done?'✓':''}</div>
+    <div>
+      <div class="task-title">${t.title}</div>
+      <div class="task-client">${t.clientName}</div>
+    </div>
+    <div class="task-due ${overdue?'overdue':''}">${overdue? 'Overdue · ' : ''}${fmtDate(t.due)}</div>
+  </div>`;
+}
+
+/* ---------------- RENDER: CLIENTS ---------------- */
+function renderClients(){
+  const search = (document.getElementById('search-input').value||"").toLowerCase();
+  const stageF = document.getElementById('stage-filter').value;
+  let list = STATE.clients.filter(c=>{
+    const matchSearch = !search || c.name.toLowerCase().includes(search) || c.industry.toLowerCase().includes(search);
+    const matchStage = !stageF || c.stage===stageF;
+    return matchSearch && matchStage;
+  });
+  document.getElementById('client-list').innerHTML = list.length ? list.map(clientRowHTML).join('') : `<div class="empty"><h3>No matches</h3><p>Try a different search or filter.</p></div>`;
+  bindRowEvents();
+}
+
+function bindRowEvents(){
+  document.querySelectorAll('.client-row').forEach(row=>{
+    row.onclick = ()=> openClientDrawer(row.dataset.id);
+  });
+  document.querySelectorAll('.checkbox[data-task]').forEach(box=>{
+    box.onclick = async (e)=>{
+      e.stopPropagation();
+      const t = STATE.tasks.find(x=>x.id===box.dataset.task);
+      t.done = !t.done;
+      await saveState();
+      renderAll();
+    };
+  });
+}
+
+/* ---------------- DRAWER: CLIENT DETAIL ---------------- */
+function openClientDrawer(id){
+  const cl = STATE.clients.find(c=>c.id===id);
+  const drawer = document.getElementById('drawer');
+  const allProducts = PRODUCTS.map(p=>p.name);
+  drawer.innerHTML = `
+    <div class="drawer-head">
+      <button class="drawer-close" id="drawer-close">✕</button>
+      <h2 style="color:var(--navy);font-size:22px;">${cl.name}</h2>
+      <div style="color:var(--ink-soft);font-size:13px;margin-top:4px;">${cl.industry} · ${cl.location}</div>
+      <div style="margin-top:10px;"><span class="badge stage-${cl.stage}">${stageLabel(cl.stage)}</span></div>
+    </div>
+    <div class="drawer-body">
+      <div class="field-row">
+        <div class="field"><label>Relationship Health</label><input type="range" id="f-health" min="0" max="100" value="${cl.health}"></div>
+        <div class="field"><label>Stage</label>
+          <select id="f-stage">
+            <option value="prospect" ${cl.stage==='prospect'?'selected':''}>Prospect</option>
+            <option value="onboarding" ${cl.stage==='onboarding'?'selected':''}>Onboarding</option>
+            <option value="active" ${cl.stage==='active'?'selected':''}>Active</option>
+            <option value="atrisk" ${cl.stage==='atrisk'?'selected':''}>At Risk</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Deposit Balance ($)</label><input type="number" id="f-deposits" value="${cl.deposits}"></div>
+        <div class="field"><label>Est. Annual Revenue ($M)</label><input type="number" step="0.1" id="f-revenue" value="${cl.revenue}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Primary Contact Role</label><input type="text" id="f-contact" value="${cl.primaryContact}"></div>
+        <div class="field"><label>Employees</label><input type="number" id="f-employees" value="${cl.employees}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Phone</label><input type="text" id="f-phone" value="${cl.phone}"></div>
+        <div class="field"><label>Email</label><input type="text" id="f-email" value="${cl.email}"></div>
+      </div>
+
+      <div class="section-title" style="margin-top:22px;">Products Held</div>
+      <div id="product-chips">
+        ${allProducts.map(p=>`<span class="product-chip ${cl.heldProducts.includes(p)?'held':''}" data-prod="${p}">${cl.heldProducts.includes(p)?'✓ ':''}${p}</span>`).join('')}
+      </div>
+
+      <div class="section-title">Relationship Notes</div>
+      <div id="notes-list">${cl.notes.map(n=>`<div class="note-item"><div class="date">${fmtDate(n.date)}</div><p>${n.text}</p></div>`).join('')}</div>
+      <div class="field"><label>Add a note</label><textarea id="f-newnote" placeholder="Log a call, meeting, or update…"></textarea></div>
+      <button class="btn small secondary" id="add-note-btn" style="margin-top:6px;">Add Note</button>
+
+      <div style="margin-top:28px;display:flex;gap:10px;">
+        <button class="btn" id="save-client-btn">Save Changes</button>
+        <button class="btn danger" id="delete-client-btn">Delete Client</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('overlay').classList.add('active');
+  drawer.classList.add('active');
+  document.getElementById('drawer-close').onclick = closeDrawer;
+  document.getElementById('overlay').onclick = closeDrawer;
+
+  document.querySelectorAll('#product-chips .product-chip').forEach(chip=>{
+    chip.onclick = ()=>{
+      const p = chip.dataset.prod;
+      const idx = cl.heldProducts.indexOf(p);
+      if(idx>-1) cl.heldProducts.splice(idx,1); else cl.heldProducts.push(p);
+      chip.classList.toggle('held');
+      chip.textContent = (cl.heldProducts.includes(p)?'✓ ':'')+p;
+    };
+  });
+
+  document.getElementById('add-note-btn').onclick = ()=>{
+    const val = document.getElementById('f-newnote').value.trim();
+    if(!val) return;
+    cl.notes.unshift({date: new Date().toISOString().slice(0,10), text: val});
+    document.getElementById('notes-list').innerHTML = cl.notes.map(n=>`<div class="note-item"><div class="date">${fmtDate(n.date)}</div><p>${n.text}</p></div>`).join('');
+    document.getElementById('f-newnote').value='';
+  };
+
+  document.getElementById('save-client-btn').onclick = async ()=>{
+    cl.health = parseInt(document.getElementById('f-health').value);
+    cl.stage = document.getElementById('f-stage').value;
+    cl.deposits = parseInt(document.getElementById('f-deposits').value)||0;
+    cl.revenue = parseFloat(document.getElementById('f-revenue').value)||0;
+    cl.primaryContact = document.getElementById('f-contact').value;
+    cl.employees = parseInt(document.getElementById('f-employees').value)||0;
+    cl.phone = document.getElementById('f-phone').value;
+    cl.email = document.getElementById('f-email').value;
+    cl.lastContact = new Date().toISOString().slice(0,10);
+    await saveState();
+    closeDrawer();
+    renderAll();
+  };
+
+  document.getElementById('delete-client-btn').onclick = async ()=>{
+    STATE.clients = STATE.clients.filter(c=>c.id!==id);
+    STATE.tasks = STATE.tasks.filter(t=>t.clientId!==id);
+    await saveState();
+    closeDrawer();
+    renderAll();
+  };
+}
+
+function closeDrawer(){
+  document.getElementById('overlay').classList.remove('active');
+  document.getElementById('drawer').classList.remove('active');
+}
+
+/* ---------------- NEW CLIENT ---------------- */
+function openNewClientDrawer(){
+  const drawer = document.getElementById('drawer');
+  drawer.innerHTML = `
+    <div class="drawer-head">
+      <button class="drawer-close" id="drawer-close">✕</button>
+      <h2 style="color:var(--navy);font-size:22px;">New Client</h2>
+    </div>
+    <div class="drawer-body">
+      <div class="field"><label>Business Name</label><input type="text" id="nf-name" placeholder="e.g. Gulf Coast Fabrication LLC"></div>
+      <div class="field-row" style="margin-top:12px;">
+        <div class="field"><label>Industry</label>
+          <select id="nf-industry">${INDUSTRIES.map(i=>`<option>${i}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label>Location</label>
+          <select id="nf-location">${NEIGHBORHOODS.map(n=>`<option>${n}</option>`).join('')}</select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Stage</label>
+          <select id="nf-stage"><option value="prospect">Prospect</option><option value="onboarding">Onboarding</option><option value="active">Active</option></select>
+        </div>
+        <div class="field"><label>Primary Contact Role</label><input type="text" id="nf-contact" placeholder="Owner/Principal"></div>
+      </div>
+      <button class="btn" id="create-client-btn" style="margin-top:20px;">Create Client</button>
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('active');
+  drawer.classList.add('active');
+  document.getElementById('drawer-close').onclick = closeDrawer;
+  document.getElementById('overlay').onclick = closeDrawer;
+  document.getElementById('create-client-btn').onclick = async ()=>{
+    const name = document.getElementById('nf-name').value.trim();
+    if(!name){ alert('Please enter a business name.'); return; }
+    const today = new Date().toISOString().slice(0,10);
+    STATE.clients.push({
+      id:'c'+Date.now(),
+      name,
+      industry: document.getElementById('nf-industry').value,
+      location: document.getElementById('nf-location').value,
+      stage: document.getElementById('nf-stage').value,
+      health: 50,
+      deposits: 0,
+      revenue: 0,
+      employees: 1,
+      heldProducts: [],
+      primaryContact: document.getElementById('nf-contact').value || 'Owner/Principal',
+      phone: '',
+      email: '',
+      lastContact: today,
+      nextFollow: today,
+      notes: [{date: today, text:'New relationship added to portfolio.'}]
+    });
+    await saveState();
+    closeDrawer();
+    renderAll();
+  };
+}
+
+/* ---------------- NEW TASK ---------------- */
+function openNewTaskDrawer(){
+  const drawer = document.getElementById('drawer');
+  drawer.innerHTML = `
+    <div class="drawer-head">
+      <button class="drawer-close" id="drawer-close">✕</button>
+      <h2 style="color:var(--navy);font-size:22px;">New Follow-Up</h2>
+    </div>
+    <div class="drawer-body">
+      <div class="field"><label>Client</label>
+        <select id="tf-client">${STATE.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select>
+      </div>
+      <div class="field" style="margin-top:12px;"><label>Task</label><input type="text" id="tf-title" placeholder="e.g. Follow up on line of credit renewal"></div>
+      <div class="field" style="margin-top:12px;"><label>Due Date</label><input type="date" id="tf-due" value="${new Date().toISOString().slice(0,10)}"></div>
+      <button class="btn" id="create-task-btn" style="margin-top:20px;">Create Task</button>
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('active');
+  drawer.classList.add('active');
+  document.getElementById('drawer-close').onclick = closeDrawer;
+  document.getElementById('overlay').onclick = closeDrawer;
+  document.getElementById('create-task-btn').onclick = async ()=>{
+    const title = document.getElementById('tf-title').value.trim();
+    if(!title){ alert('Please enter a task description.'); return; }
+    const clientId = document.getElementById('tf-client').value;
+    const client = STATE.clients.find(c=>c.id===clientId);
+    STATE.tasks.push({
+      id:'t'+Date.now(),
+      clientId,
+      clientName: client.name,
+      title,
+      due: document.getElementById('tf-due').value,
+      done:false
+    });
+    await saveState();
+    closeDrawer();
+    renderAll();
+  };
+}
+
+/* ---------------- RENDER: PRODUCTS ---------------- */
+function renderProducts(){
+  document.getElementById('product-catalog').innerHTML = PRODUCTS.map(p=>`
+    <div class="prod-card">
+      <div class="cat-label">${p.cat}</div>
+      <h3>${p.name}</h3>
+      <p>${p.desc}</p>
+      <ul>${p.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+      <div class="use-case">${p.use}</div>
+    </div>
+  `).join('');
+}
+
+/* ---------------- RENDER: TASKS ---------------- */
+function renderTasks(){
+  const sorted = [...STATE.tasks].sort((a,b)=> (a.done - b.done) || a.due.localeCompare(b.due));
+  document.getElementById('task-list').innerHTML = sorted.length ? sorted.map(taskRowHTML).join('') : `<div class="empty"><h3>No tasks yet</h3><p>Add a follow-up to get started.</p></div>`;
+  bindRowEvents();
+}
+
+/* ---------------- NAV / INIT ---------------- */
+function renderAll(){
+  renderDashboard();
+  renderClients();
+  renderProducts();
+  renderTasks();
+}
+
+function switchView(view){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
+}
+
+document.querySelectorAll('nav button').forEach(btn=>{
+  btn.onclick = ()=> switchView(btn.dataset.view);
+});
+document.getElementById('add-client-btn').onclick = openNewClientDrawer;
+document.getElementById('add-task-btn').onclick = openNewTaskDrawer;
+document.getElementById('search-input').oninput = renderClients;
+document.getElementById('stage-filter').onchange = renderClients;
+document.getElementById('reset-data-btn').onclick = resetDemoData;
+
+(async function init(){
+  document.getElementById('main').insertAdjacentHTML('afterbegin','<div class="loading-note" id="loading-note">Loading portfolio…</div>');
+  await loadState();
+  document.getElementById('loading-note').remove();
+  renderAll();
+})();
+</script>
+</body>
+</html>
