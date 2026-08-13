@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>The Ledger — Business Relationship Manager</title>
+<title>Phillip S. Dobbs — Business Relationship Manager</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -42,7 +42,13 @@
   .brand-mark{display:flex;align-items:center;gap:10px;}
   .brand-mark svg{flex-shrink:0;}
   .brand h1{font-size:19px;color:var(--cream);line-height:1.15;}
-  .brand .tag{font-size:10.5px;color:var(--brass-light);letter-spacing:0.08em;text-transform:uppercase;margin-top:5px;font-family:'Inter';font-weight:600;}
+  .brand-rank{
+    display:inline-flex;align-items:center;gap:5px;margin-top:9px;background:rgba(255,255,255,0.08);
+    border:1px solid rgba(221,182,113,0.35);color:var(--brass-light);font-size:11px;font-weight:600;
+    padding:4px 10px;border-radius:20px;cursor:default;
+  }
+  .brand-rank .rank-num{font-family:'JetBrains Mono';color:var(--cream);font-weight:700;}
+  .brand .tag{font-size:10.5px;color:var(--brass-light);letter-spacing:0.08em;text-transform:uppercase;margin-top:9px;font-family:'Inter';font-weight:600;}
   nav{display:flex;flex-direction:column;gap:2px;padding:0 12px;}
   nav button{
     display:flex;align-items:center;gap:10px;background:none;border:none;color:rgba(247,245,240,0.72);
@@ -80,6 +86,23 @@
   .stat-card .label{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);font-weight:600;}
   .stat-card .value{font-family:'Fraunces',serif;font-size:30px;color:var(--navy);margin-top:6px;}
   .stat-card .sub{font-size:12px;color:var(--ink-soft);margin-top:4px;}
+  .stat-card{position:relative;}
+  .info-icon{
+    position:relative;display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;
+    border-radius:50%;background:var(--line);color:var(--ink-soft);font-size:9.5px;font-weight:700;
+    margin-left:5px;cursor:help;font-style:normal;vertical-align:middle;
+  }
+  .info-icon:hover, .info-icon:focus{background:var(--seafoam);color:var(--navy);outline:none;}
+  .info-icon:hover .tooltip-box, .info-icon:focus .tooltip-box{opacity:1;visibility:visible;transform:translateY(0);}
+  .tooltip-box{
+    position:absolute;left:0;top:calc(100% + 9px);transform:translateY(4px);width:245px;
+    background:var(--navy);color:var(--cream);font-size:11.5px;line-height:1.55;padding:11px 13px;border-radius:8px;
+    opacity:0;visibility:hidden;transition:opacity .15s, transform .15s;z-index:20;font-weight:400;text-align:left;
+    box-shadow:0 8px 24px rgba(0,0,0,0.2);
+  }
+  .tooltip-box b{color:var(--brass-light);}
+  .tooltip-box .tt-title{color:var(--cream);font-weight:700;font-size:12px;margin-bottom:5px;display:block;}
+  .stat-card:last-child .tooltip-box, .stat-card:nth-child(4) .tooltip-box{left:auto;right:0;}
 
   .section-title{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--harbor);font-weight:700;margin:30px 0 12px;}
   .section-title:first-child{margin-top:0;}
@@ -94,6 +117,13 @@
   .ring{width:42px;height:42px;flex-shrink:0;}
   .client-name{font-family:'Fraunces',serif;font-size:16px;color:var(--navy);font-weight:600;}
   .client-meta{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+  .client-actions{display:flex;gap:6px;margin-top:7px;}
+  .action-btn{
+    display:inline-flex;align-items:center;gap:4px;background:var(--cream);border:1px solid var(--line);color:var(--harbor);
+    font-size:11px;font-weight:600;padding:4px 9px;border-radius:6px;text-decoration:none;transition:border-color .15s,color .15s;
+  }
+  .action-btn:hover{border-color:var(--seafoam);color:var(--navy);}
+  .action-btn svg{flex-shrink:0;}
   .badge{
     font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em;
   }
@@ -104,6 +134,24 @@
   .figure{text-align:right;}
   .figure .num{font-family:'JetBrains Mono';font-size:14px;color:var(--navy);font-weight:500;}
   .figure .lbl{font-size:10.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;}
+
+  /* Route widget — a static, non-functional Google-Maps-style card. Proof-of-concept
+     placeholder illustrating where live directions/ETA could be embedded; not connected
+     to any real mapping service. */
+  .client-row.with-route{grid-template-columns:auto 1fr auto auto auto auto 172px;}
+  .route-widget{width:172px;flex-shrink:0;}
+  .route-map{width:100%;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:#EDEAE1;}
+  .route-map svg{width:100%;height:100%;display:block;}
+  .route-actions{display:flex;align-items:center;gap:6px;margin-top:6px;}
+  .route-directions-btn{
+    display:inline-flex;align-items:center;gap:4px;background:#1A73E8;color:#fff;border:none;
+    font-size:10.5px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;
+  }
+  .route-eta{font-size:10.5px;color:var(--ink-soft);font-family:'JetBrains Mono';white-space:nowrap;}
+  .route-go-btn{
+    background:#1A73E8;color:#fff;border:none;font-size:10.5px;font-weight:700;
+    padding:5px 12px;border-radius:6px;letter-spacing:.03em;margin-left:auto;
+  }
 
   .toolbar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
   .toolbar input, .toolbar select{
@@ -139,13 +187,42 @@
   .product-chip.held{background:#E7F1EA;border-color:transparent;color:var(--good);font-weight:600;}
 
   /* Product catalog */
-  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .prod-list{display:flex;flex-direction:column;gap:10px;}
+  .cat-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;font-size:12px;color:var(--ink-soft);}
+  .legend-item{display:flex;align-items:center;gap:6px;font-weight:600;}
+  .legend-dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .prod-row{background:var(--paper);border:1px solid var(--line);border-left-width:4px;border-radius:var(--radius);overflow:hidden;}
+  .prod-row.expanded{border-color:var(--seafoam);}
+  .prod-row-header{
+    display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 20px;cursor:pointer;
+    background:none;border:none;width:100%;text-align:left;font-family:inherit;
+  }
+  .prod-row-header:hover{background:var(--cream);}
+  .prod-row-header-text .cat-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--brass);font-weight:700;margin-bottom:3px;}
+  .prod-row-header-text h3{font-size:16.5px;color:var(--navy);}
+  .prod-row-chevron{flex-shrink:0;transition:transform .2s;color:var(--ink-soft);}
+  .prod-row.expanded .prod-row-chevron{transform:rotate(180deg);color:var(--seafoam);}
+  .prod-row-body{display:none;padding:0 20px 22px;border-top:1px solid var(--line);}
+  .prod-row.expanded .prod-row-body{display:block;padding-top:16px;}
+  .prod-row-body p{font-size:13.5px;color:var(--ink-soft);line-height:1.55;margin:0 0 10px;}
+  .prod-row-body ul{margin:0;padding-left:18px;font-size:13px;color:var(--ink);line-height:1.7;}
   .prod-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:20px;}
   .prod-card .cat-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--brass);font-weight:700;margin-bottom:6px;}
   .prod-card h3{font-size:17px;color:var(--navy);margin-bottom:8px;}
   .prod-card p{font-size:13.5px;color:var(--ink-soft);line-height:1.55;margin:0 0 10px;}
   .prod-card ul{margin:0;padding-left:18px;font-size:13px;color:var(--ink);line-height:1.7;}
   .prod-card .use-case{font-size:12.5px;background:var(--cream);border-radius:7px;padding:9px 11px;margin-top:10px;color:var(--ink-soft);font-style:italic;}
+  .prod-meta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+  .prod-meta.rate-chip{background:#EFF3F6;border:1px dashed var(--line);}
+  .rate-disclaimer{font-size:10.5px;color:var(--ink-soft);font-style:italic;margin-top:6px;}
+  .prod-meta{flex:1;min-width:120px;background:var(--cream);border-radius:7px;padding:8px 10px;}
+  .prod-meta .pm-lbl{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;}
+  .prod-meta .pm-val{font-size:11.5px;color:var(--navy);margin-top:2px;line-height:1.4;}
+  .prod-callout{font-size:12px;line-height:1.5;padding:8px 11px;border-radius:7px;margin-top:8px;}
+  .prod-callout.new{background:#E7F1EA;color:#2F5C46;}
+  .prod-callout.new b{color:var(--good);}
+  .prod-callout.incentive{background:#FBF1E1;color:#6B4B1A;}
+  .prod-callout.incentive b{color:var(--brass);}
 
   /* Tasks */
   .task-row{
@@ -158,6 +235,8 @@
   .checkbox.checked{background:var(--good);border-color:var(--good);}
   .task-title{font-size:14px;font-weight:500;color:var(--ink);}
   .task-client{font-size:12px;color:var(--seafoam);font-weight:600;}
+  .task-client-link{cursor:pointer;text-decoration:underline;text-decoration-color:transparent;transition:text-decoration-color .15s;width:fit-content;}
+  .task-client-link:hover{text-decoration-color:var(--seafoam);}
   .task-due{margin-left:auto;font-size:12px;color:var(--ink-soft);font-family:'JetBrains Mono';white-space:nowrap;}
   .task-due.overdue{color:var(--danger);font-weight:600;}
 
@@ -165,6 +244,114 @@
   .empty h3{color:var(--navy);margin-bottom:6px;}
 
   .loading-note{font-size:12px;color:var(--ink-soft);padding:10px 0;}
+
+  /* Executive View */
+  .exec-breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:22px;font-size:13px;}
+  .exec-home-path{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:10px;font-size:12px;background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:8px 12px;}
+  .home-path-lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;margin-right:2px;}
+  .home-crumb{
+    font-size:12px;font-weight:600;background:var(--paper);border:1.5px solid var(--line);color:var(--harbor);
+    padding:6px 13px;border-radius:20px;text-decoration:none!important;transition:background .15s,border-color .15s,color .15s;
+  }
+  .home-crumb:hover{background:var(--seafoam);border-color:var(--seafoam);color:var(--navy);}
+  .home-crumb.current{background:var(--navy);border-color:var(--navy);color:var(--cream);cursor:default;}
+  .home-crumb.current:hover{background:var(--navy);color:var(--cream);}
+  .exec-crumb{background:none;border:none;color:var(--harbor);font-weight:600;padding:4px 2px;cursor:pointer;font-family:inherit;font-size:13px;}
+  .exec-crumb:hover{text-decoration:underline;}
+  .exec-crumb.current{color:var(--ink-soft);font-weight:500;cursor:default;}
+  .exec-crumb.current:hover{text-decoration:none;}
+  .exec-sep{color:var(--line);font-size:12px;}
+
+  .compare-wrap{display:flex;align-items:stretch;gap:18px;position:relative;}
+  .compare-wrap.grid-mode{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;}
+  .compare-vs{
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;width:44px;
+  }
+  .compare-vs span{
+    background:var(--navy);color:var(--brass-light);font-family:'Fraunces',serif;font-weight:600;font-size:13px;
+    width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  }
+  .node-card{
+    flex:1;background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:22px 22px 20px;cursor:pointer;
+    transition:border-color .15s, transform .12s; position:relative; overflow:hidden;
+    background-image:radial-gradient(circle, rgba(27,73,101,0.07) 1px, transparent 1px);
+    background-size:14px 14px;
+  }
+  .node-card:hover{border-color:var(--seafoam);transform:translateY(-2px);}
+  .node-card .level-eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--brass);font-weight:700;}
+  .node-card .node-name{font-family:'Fraunces',serif;font-size:21px;color:var(--navy);margin-top:5px;font-weight:600;}
+  .node-card .node-sub{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .node-card .you-tag{
+    display:inline-block;background:var(--seafoam);color:var(--navy);font-size:10px;font-weight:700;
+    padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em;margin-left:8px;vertical-align:middle;
+  }
+  .node-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-top:18px;}
+  .node-metric .m-val{font-family:'JetBrains Mono';font-size:16px;color:var(--navy);font-weight:600;}
+  .node-metric .m-lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);margin-top:2px;}
+  .node-card .node-cta{margin-top:16px;font-size:12px;color:var(--harbor);font-weight:600;display:flex;align-items:center;gap:4px;}
+  .node-card.tier-good{border-left:4px solid var(--good);}
+  .node-card.tier-warn{border-left:4px solid var(--warn);}
+  .node-card.tier-danger{border-left:4px solid var(--danger);}
+
+  .exec-context{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:14px 18px;margin-bottom:22px;font-size:13px;color:var(--ink-soft);display:flex;align-items:center;gap:10px;}
+
+  /* Industry Benchmark panel */
+  .industry-panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-bottom:22px;}
+
+  /* Portfolio Copilot */
+  .copilot-panel{margin-bottom:26px;background:linear-gradient(180deg, var(--paper) 0%, var(--cream) 140%);}
+  .copilot-head h3{font-size:16px;color:var(--navy);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .beta-badge{font-size:10px;text-transform:uppercase;letter-spacing:.04em;font-weight:700;background:var(--cream);color:var(--ink-soft);padding:3px 9px;border-radius:20px;}
+  .copilot-head p{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
+  .copilot-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;}
+  .chip-btn{
+    background:var(--cream);border:1px solid var(--line);color:var(--harbor);font-size:12px;font-weight:600;
+    padding:6px 12px;border-radius:20px;transition:border-color .15s,background .15s;
+  }
+  .chip-btn:hover{border-color:var(--seafoam);background:#EAF3F1;}
+  .copilot-input-row{display:flex;gap:8px;margin-top:12px;}
+  .copilot-input-row input{
+    flex:1;border:1.5px solid var(--line);border-radius:8px;padding:10px 13px;font-size:13.5px;background:var(--paper);
+  }
+  .copilot-trace{margin-top:14px;background:var(--cream);border-radius:9px;padding:12px 14px;}
+  .trace-step{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-soft);padding:3px 0;}
+  .trace-step.active{color:var(--navy);font-weight:600;}
+  .trace-step.done{color:var(--good);}
+  .trace-dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex-shrink:0;}
+  .trace-step.active .trace-dot{background:var(--seafoam);animation:pulse-dot 1s infinite;}
+  .trace-step.done .trace-dot{background:var(--good);}
+  @keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:.35;}}
+  .copilot-results{margin-top:14px;}
+  .copilot-summary{font-size:12px;color:var(--ink-soft);margin-bottom:10px;font-weight:600;}
+  .stop-badge{
+    width:26px;height:26px;border-radius:50%;background:var(--brass);color:var(--navy);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;margin-top:14px;
+  }
+  .industry-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .industry-panel-head h3{font-size:15px;color:var(--navy);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .industry-badge{font-size:10px;text-transform:uppercase;letter-spacing:.04em;font-weight:700;background:var(--cream);color:var(--ink-soft);padding:3px 9px;border-radius:20px;}
+  .bench-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .bench-card{background:var(--cream);border-radius:9px;padding:12px 14px;}
+  .bench-card .bench-lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;}
+  .bench-card .bench-global{font-family:'JetBrains Mono';font-size:19px;color:var(--navy);font-weight:600;margin-top:4px;}
+  .bench-card .bench-industry{font-size:11px;color:var(--ink-soft);margin-top:2px;}
+  .bench-delta{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;margin-top:4px;padding:2px 7px;border-radius:20px;}
+  .bench-delta.up{background:#E7F1EA;color:var(--good);}
+  .bench-delta.down{background:#F5E8E6;color:var(--danger);}
+  .industry-details{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-soft);line-height:1.6;}
+  .industry-details .src-line{margin-top:6px;}
+  .industry-details b{color:var(--navy);}
+
+  @media (max-width:820px){
+    .bench-grid{grid-template-columns:1fr;}
+  }
+  .exec-context b{color:var(--navy);}
+
+  @media (max-width:820px){
+    .compare-wrap{flex-direction:column;}
+    .compare-vs{width:100%;height:30px;}
+    .node-metrics{grid-template-columns:1fr 1fr;}
+  }
 
   /* Watermark — identifies this as simulated/demo data, not a real banking system.
      Full-page tile, drawn above content (click-through via pointer-events:none),
@@ -180,13 +367,17 @@
     #sidebar{width:100%;height:auto;position:relative;flex-direction:row;align-items:center;padding:14px 16px;overflow-x:auto;}
     .brand{border:none;padding:0 14px 0 0;margin:0;}
     .brand .tag{display:none;}
+    .brand-rank{display:none;}
     nav{flex-direction:row;padding:0;}
     .sidebar-foot{display:none;}
     #main{padding:22px 18px;}
     .grid.stats{grid-template-columns:1fr 1fr;}
-    .cat-grid{grid-template-columns:1fr;}
+    .prod-row-header{padding:14px 16px;}
     .client-row{grid-template-columns:auto 1fr;row-gap:8px;}
+    .client-row.with-route{grid-template-columns:auto 1fr;}
     .client-row .figure, .client-row .badge{grid-column:2;justify-self:start;}
+    .client-row .route-widget{grid-column:1/-1;width:100%;margin-top:4px;}
+    .route-map{height:70px;}
   }
 </style>
 </head>
@@ -201,8 +392,9 @@
           <path d="M15 5V25M6 12H24M6 18H24" stroke="#DDB671" stroke-width="1.2" opacity="0.55"/>
           <circle cx="15" cy="15" r="3.2" fill="#DDB671"/>
         </svg>
-        <h1>Harbor Ledger</h1>
+        <h1>Nathaniel Young</h1>
       </div>
+      <div class="brand-rank" id="brand-rank"></div>
       <div class="tag">BRM Workbench · Proof of Concept</div>
     </div>
     <nav id="nav">
@@ -222,6 +414,10 @@
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 8.3L7 10.3L11 5.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Follow-Ups
       </button>
+      <button data-view="exec">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.3" stroke="currentColor" stroke-width="1.3"/><path d="M1.7 8H14.3M8 1.7C9.8 3.6 10.7 5.7 10.7 8C10.7 10.3 9.8 12.4 8 14.3C6.2 12.4 5.3 10.3 5.3 8C5.3 5.7 6.2 3.6 8 1.7Z" stroke="currentColor" stroke-width="1.1"/></svg>
+        Executive Dashboard
+      </button>
     </nav>
     <div class="sidebar-foot">
       Simulated data — Pensacola / Baldwin County corridor. Fictional businesses, illustrative figures for demonstration only.
@@ -235,11 +431,31 @@
     <section id="view-dashboard" class="view active">
       <div class="view-head">
         <div>
-          <h2>Portfolio Overview</h2>
+          <h2>BRM Personal Dashboard</h2>
           <p>A snapshot of your book of business across the Pensacola–Baldwin County market.</p>
         </div>
       </div>
       <div class="grid stats" id="stat-cards"></div>
+
+      <div class="card copilot-panel">
+        <div class="copilot-head">
+          <h3>Portfolio Copilot <span class="beta-badge">Simulated · Rule-based</span></h3>
+          <p>Ask about your book in plain language — try a suggestion below, or type your own.</p>
+        </div>
+        <div class="copilot-chips">
+          <button class="chip-btn" data-q="at-risk clients">at-risk clients</button>
+          <button class="chip-btn" data-q="highest deposits">highest deposits</button>
+          <button class="chip-btn" data-q="clients with no products">clients with no products</button>
+          <button class="chip-btn" data-q="longest relationships">longest relationships</button>
+          <button class="chip-btn" data-q="most efficient routing">most efficient routing</button>
+        </div>
+        <div class="copilot-input-row">
+          <input type="text" id="copilot-input" placeholder="e.g. at-risk clients in Fairhope">
+          <button class="btn" id="copilot-ask-btn">Ask</button>
+        </div>
+        <div class="copilot-trace" id="copilot-trace" style="display:none;"></div>
+        <div class="copilot-results" id="copilot-results"></div>
+      </div>
 
       <div class="section-title">Relationships needing attention</div>
       <div id="attention-list"></div>
@@ -275,10 +491,20 @@
       <div class="view-head">
         <div>
           <h2>Business Banking Product Catalog</h2>
-          <p>Reference set of core commercial product lines — useful for matching client needs and for interview prep.</p>
+          <p>Modeled on Bank of America's publicly published small-business banking lineup — useful for matching client needs and for interview prep.</p>
         </div>
       </div>
-      <div class="cat-grid" id="product-catalog"></div>
+      <div class="cat-legend">
+        <span class="legend-item"><span class="legend-dot" style="background:#5FA8A0;"></span>Deposit &amp; Cash Management</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#1B4965;"></span>Treasury &amp; Payments</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#C08B3E;"></span>Lending</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#8E6FB0;"></span>Specialty</span>
+      </div>
+      <div class="prod-list" id="product-catalog"></div>
+      <p style="font-size:11.5px;color:var(--ink-soft);margin-top:18px;line-height:1.6;">
+        Product names, features, and figures above are drawn from Bank of America's public business-banking pages and independent reviews as of August 2026, then summarized in my own words.
+        Rates, fees, and program details change — verify anything current directly with the bank before relying on it. This catalog is for demonstration purposes and isn't affiliated with or endorsed by Bank of America.
+      </p>
     </section>
 
     <!-- TASKS -->
@@ -293,6 +519,28 @@
       <div id="task-list"></div>
     </section>
 
+    <!-- EXECUTIVE VIEW -->
+    <section id="view-exec" class="view">
+      <div class="view-head">
+        <div>
+          <h2>Executive View: Top Performances</h2>
+          <p>Global Bank portfolio health, drilled down from the whole organization to an individual relationship manager. Two units are compared at every level.</p>
+        </div>
+      </div>
+      <div class="industry-panel" id="industry-panel">
+        <div class="industry-panel-head">
+          <h3>Global Bank vs. Industry Benchmark <span class="industry-badge">Simulated vs. real, cited data</span></h3>
+          <button class="btn secondary small" id="industry-toggle-btn">Show sources ▾</button>
+        </div>
+        <div class="bench-grid" id="bench-grid"></div>
+        <div class="industry-details" id="industry-details" style="display:none;"></div>
+      </div>
+      <div class="exec-home-path" id="exec-home-path"></div>
+      <div class="exec-breadcrumb" id="exec-breadcrumb"></div>
+      <div class="exec-context" id="exec-context"></div>
+      <div class="compare-wrap" id="exec-compare"></div>
+    </section>
+
   </main>
 </div>
 
@@ -304,18 +552,18 @@
 /* ---------------- DATA MODEL ---------------- */
 
 const PRODUCTS = [
-  {cat:"Deposit & Cash Management", name:"Business Analyzed Checking", desc:"Core operating account for businesses with high transaction volume; earnings credit offsets monthly service and cash management fees.", features:["Earnings credit rate applied against balances","Detailed account analysis statement","Integrates with ACH & wire modules"], use:"Fit for a marina operator running daily card and cash deposits during peak season."},
-  {cat:"Deposit & Cash Management", name:"Treasury / Cash Management Suite", desc:"Bundles remote deposit capture, ACH origination, positive pay, and sweep accounts to automate receivables and protect against fraud.", features:["Remote deposit capture","Positive pay & payee match","Zero-balance / sweep accounts"], use:"Fit for a multi-location healthcare group consolidating deposits from several clinics."},
-  {cat:"Deposit & Cash Management", name:"Merchant Services", desc:"Card acceptance and payment processing integrated with the business's operating account for faster funds availability.", features:["Card-present & e-commerce processing","Next-day funding options","POS and integrated payment terminals"], use:"Fit for tourism/hospitality clients (charter boats, rental properties) with seasonal card volume."},
-  {cat:"Lending", name:"SBA 7(a) / 504 Loans", desc:"Government-guaranteed financing for working capital, equipment, or owner-occupied commercial real estate, typically with lower down payments.", features:["Longer amortization than conventional loans","Lower equity injection requirement","504 pairs a bank loan with a CDC debenture for real estate/equipment"], use:"Fit for a growing contractor purchasing a new fabrication facility in Baldwin County."},
-  {cat:"Lending", name:"Commercial Real Estate Loans", desc:"Financing for the purchase, refinance, or construction of income-producing or owner-occupied commercial property.", features:["Fixed or variable rate structures","Loan-to-value typically 65-80%","Construction-to-permanent options available"], use:"Fit for a hospitality operator expanding a beachfront rental portfolio near Perdido Key."},
-  {cat:"Lending", name:"Business Line of Credit", desc:"Revolving credit facility for short-term working capital needs, seasonal inventory, or bridging receivables timing gaps.", features:["Draw and repay as needed","Often secured by receivables/inventory","Useful for smoothing seasonal cash flow"], use:"Fit for a seafood distributor financing inventory ahead of tourist season."},
-  {cat:"Lending", name:"Equipment Financing", desc:"Term financing secured by the equipment being purchased — vessels, medical devices, construction machinery.", features:["Equipment serves as collateral","Fixed terms matched to useful life","Can include soft costs (installation, training)"], use:"Fit for a marine services company financing a new haul-out lift."},
-  {cat:"Government & Defense", name:"Government Contracting Banking", desc:"Specialized support for businesses holding federal/DoD contracts — bonding-related deposit accounts, payment timing solutions given NAS Pensacola-area contractor base.", features:["Escrow / bonding-related accounts","Progress billing cash flow bridge lines","Familiarity with government payment cycles"], use:"Fit for an aerospace maintenance subcontractor serving Naval Air Station Pensacola."},
-  {cat:"Specialty / Advisory", name:"International & Trade Services", desc:"Letters of credit, foreign exchange, and trade finance for businesses importing/exporting goods (e.g., marine equipment, seafood).", features:["Standby & commercial letters of credit","Foreign currency exchange","Trade finance / documentary collections"], use:"Fit for a boat parts distributor importing components from overseas manufacturers."},
-  {cat:"Specialty / Advisory", name:"Retirement & Employee Benefit Plans", desc:"401(k) and benefit plan services offered to business owners as a relationship deepening and retention tool.", features:["Plan design consultation","Payroll integration","Owner & employee education sessions"], use:"Fit for an established healthcare practice looking to improve staff retention."},
-  {cat:"Specialty / Advisory", name:"Business Credit Card Program", desc:"Corporate card programs with expense controls, rewards, and reporting for expense management.", features:["Individual spend limits & controls","Rewards aligned to business spend categories","Expense reporting integration"], use:"Fit for a construction firm managing multiple project-based expense accounts."},
-  {cat:"Insurance & Risk", name:"Key Person / Business Insurance Referral", desc:"Referral partnership for business insurance and key-person coverage, often bundled into a full relationship review.", features:["Coordinated with lending covenants","Reviewed at annual relationship checkpoints","Cross-sell opportunity during onboarding"], use:"Fit for a founder-dependent business as a condition of a term loan covenant."},
+  {cat:"Deposit & Cash Management", name:"Business Advantage Banking (Checking)", desc:"Bank of America's small-business checking lineup, split into Fundamentals and Relationship tiers — clients can move between them as needs change.", features:["Fundamentals or Relationship tier, switch anytime","Erica® virtual assistant & mobile check deposit built in","Cash Flow Monitor for real-time visibility"], use:"Fit for a marina retailer that wants a straightforward operating account with mobile deposit for weekend cash and card receipts.", availableSince:"Current Advantage Banking structure in place since 2018; BofA has offered small-business checking for decades.", popularity:"Core checking product across the large majority of Bank of America's small-business relationships nationally.", newFeature:"No monthly fee for the first 12 statement cycles on new accounts, plus a new-accountholder welcome offer.", incentive:"Preferred Rewards for Business members get monthly maintenance-fee waivers on linked accounts."},
+  {cat:"Deposit & Cash Management", name:"Business Advantage Savings", desc:"Interest-bearing business savings account designed to sit alongside Advantage Banking checking as a reserve account.", features:["Links directly to Advantage Banking checking","Preferred Rewards for Business rate booster available","Managed inside Business Advantage 360"], use:"Fit for a seasonal charter fleet operator building cash reserves ahead of the slow season.", availableSince:"Standard companion product across BofA's current small-business deposit lineup.", popularity:"Commonly paired with Advantage Banking as the default reserve account for BofA small-business clients.", newFeature:"Digital funding and balance management from directly within Business Advantage 360.", incentive:"Preferred Rewards for Business members receive a savings interest-rate booster.", nationalAvgRate:"0.42% APY", competitorRate:"1.10% APY"},
+  {cat:"Treasury & Payments", name:"CashPro® Treasury & Cash Management", desc:"BofA's digital treasury platform for mid-size and larger businesses — payments, liquidity, FX, credit, and trade in one place, with a growing AI-driven insights layer.", features:["Used by clients across 145+ countries/jurisdictions","CashPro Insights & Forecasting for treasury decisions","Mobile app for on-the-go payment approvals"], use:"Fit for a multi-location healthcare group centralizing cash management across several clinics.", availableSince:"Long-standing treasury platform, continuously modernized over multiple decades.", popularity:"Ranked #1 in digital channels and #1 mobile app for the 4th consecutive year (Coalition Greenwich, 2025); mobile payment approvals hit $1.2 trillion in 2025, up 15% YoY.", newFeature:"CashPro Data Intelligence — an AI-driven insights and security-analysis layer added to the platform.", incentive:"Complimentary access to CashPro Insights and CashPro Forecasting for enrolled clients."},
+  {cat:"Treasury & Payments", name:"Merchant Services", desc:"Card and payment acceptance integrated with a business's Bank of America accounts, from countertop point-of-sale to online payment links.", features:["View Merchant Services and Advantage Banking in one dashboard","No-fee same-day funding for qualifying accounts","Point-of-sale hardware built for small business"], use:"Fit for a marina supply retailer processing card payments dockside during boating season.", availableSince:"Offered in various structures since 2009; now run directly through BofA's own small-business platform.", popularity:"Historically one of the largest bank-affiliated payment processors in the U.S. by transaction volume.", newFeature:"Custom and Simplified Pricing plans with same-day funding options.", incentive:"Preferred Rewards for Business members get a processing-rate discount under the Simplified Pricing plan."},
+  {cat:"Treasury & Payments", name:"Zelle® for Business", desc:"Real-time payments built into the Bank of America mobile app, increasingly used by small businesses to collect customer payments.", features:["Send/receive with just an email or phone number","QR codes and Zelle tags for easy customer payment","No separate app — built into mobile banking"], use:"Fit for a charter boat operator collecting same-day deposits from customers.", availableSince:"Zelle network operating since 2016 (evolved from clearXchange, launched 2011); business use expanded in the years since.", popularity:"Small-business clients sent/received over 200 million Zelle payments worth $126 billion in 2025, up ~20% YoY.", newFeature:"QR codes and Zelle tags for small businesses, introduced in late 2025.", incentive:"No additional fee to send or receive payments through Zelle on an enrolled account."},
+  {cat:"Lending", name:"SBA Loans (7(a), 504, Express)", desc:"Government-guaranteed financing for real estate, equipment, and working capital, through BofA's dedicated SBA lending team.", features:["7(a) for working capital & general business needs","504 for real estate and large equipment purchases","Express for faster approval on loans up to $350,000"], use:"Fit for a growing contractor purchasing a new fabrication facility in Baldwin County.", availableSince:"Bank of America has operated as a Preferred SBA Lender for more than 20 years.", popularity:"Cited by the bank as one of its most active lending programs, with publicized fundings from $1.2M to $13M+.", newFeature:"Online application path for smaller unsecured facilities via Small Business Online Banking.", incentive:"Preferred Rewards for Business members receive a 0.25–0.75% rate discount on qualifying loans (tier-dependent).", nationalAvgRate:"10.5%–13%", competitorRate:"9.75%–12%"},
+  {cat:"Lending", name:"Business Advantage Term Loan", desc:"Fixed-amount, fixed-schedule financing for one-time investments like expansion or equipment.", features:["Fixed interest rate and repayment schedule","Typically requires 2+ years in business","Pairs with Preferred Rewards for Business pricing"], use:"Fit for a seafood distributor financing a new cold-storage buildout.", availableSince:"Core lending product offered for many years alongside BofA's other Business Advantage financing.", popularity:"One of BofA's most commonly used small-business financing paths alongside the Line of Credit.", newFeature:"Streamlined online application for qualifying loan sizes.", incentive:"Preferred Rewards for Business rate discount across Gold, Platinum, and Platinum Honors tiers.", nationalAvgRate:"9.25%–11.5%", competitorRate:"8.5%–10.75%"},
+  {cat:"Lending", name:"Business Advantage Line of Credit", desc:"Revolving credit facility for short-term working capital, seasonal inventory, or bridging receivables timing gaps.", features:["Draw and repay repeatedly up to your limit","Cash-secured option for businesses under 2 years old","Rate discount via Preferred Rewards for Business"], use:"Fit for a produce co-op financing inventory ahead of the fall harvest.", availableSince:"Long-running product; the cash-secured version is built specifically for newer businesses.", popularity:"Noted by independent lender reviews as the easiest BofA credit product to qualify for, given lower history requirements.", newFeature:"Cash-secured line available to businesses with as little as 6 months of operating history.", incentive:"Preferred Rewards for Business interest-rate discount, 0.25–0.75% depending on tier.", nationalAvgRate:"10.75%–13.5%", competitorRate:"9.9%–12.25%"},
+  {cat:"Lending", name:"Business Advantage Equipment Financing", desc:"Term financing structured around the useful life of the equipment being purchased.", features:["Loan or lease structures available","Terms matched to the equipment's useful life","Often paired with SBA 504 for larger purchases"], use:"Fit for a marine services company financing a new travel lift.", availableSince:"Standard part of BofA's Business Advantage lending suite for many years.", popularity:"Commonly used alongside SBA 504 for large equipment purchases, per the bank's publicized funding examples.", newFeature:"Available as either a loan or a lease depending on the business's cash-flow needs.", incentive:"Preferred Rewards for Business rate discount applies to qualifying equipment financing.", nationalAvgRate:"8.75%–10.5%", competitorRate:"8%–9.75%"},
+  {cat:"Specialty", name:"Business Advantage Credit Cards", desc:"A small-business card lineup — Customized Cash Rewards, Travel Rewards, Unlimited Cash Rewards, and Triple Cash Rewards — geared to everyday spend categories.", features:["Choose a top 3% cash-back category (Customized Cash Rewards)","No revenue minimum, though 6–12 months of history helps","Business credit score access via Business Advantage 360"], use:"Fit for a construction firm managing multiple project-based expense accounts.", availableSince:"Long-standing card lineup, periodically refreshed with new reward structures.", popularity:"Regularly named among the more common big-bank small-business card options in independent reviews.", newFeature:"Free, ongoing Dun & Bradstreet business credit score access through Business Advantage 360.", incentive:"Preferred Rewards for Business members earn bonus rewards on qualifying card spend.", nationalAvgRate:"21.5% APR", competitorRate:"19.9% APR"},
+  {cat:"Specialty", name:"Preferred Rewards for Business", desc:"BofA's tiered loyalty program for business clients, layering discounts and perks across other products based on combined balances.", features:["Three tiers: Gold, Platinum, Platinum Honors","Savings interest-rate booster","Discounts on lending and merchant services pricing"], use:"Fit for an established healthcare practice consolidating balances to reach the top loyalty tier.", availableSince:"BofA's standing small-business loyalty program, layered across its current Business Advantage lineup.", popularity:"Referenced on nearly every Bank of America business product page as the primary way to unlock savings.", newFeature:"Tiered discount matrix now spans checking fee waivers, savings boosters, lending, and merchant pricing.", incentive:"Up to 0.75% rate discount (Platinum Honors) on qualifying credit lines/term loans, plus fee waivers and card reward bonuses."},
+  {cat:"Specialty", name:"Business Advantage 360", desc:"BofA's small-business digital dashboard — cash flow visibility, credit score access, and connections to outside business apps in one place.", features:["Cash Flow Monitor and Erica® virtual assistant","Connects to QuickBooks Online, ADP, and Google Analytics","Free ongoing Dun & Bradstreet business credit score access"], use:"Fit for a professional services firm that wants one dashboard spanning banking and accounting software.", availableSince:"Launched February 2019.", popularity:"More than 1 million business owner clients engaged with the platform within its first year.", newFeature:"Third-party app integrations (QuickBooks Online, ADP, Google Analytics) added on its one-year anniversary.", incentive:"Included at no extra cost with an active Bank of America small-business account."},
 ];
 
 const INDUSTRIES = ["Marine & Boating Services","Defense & Aerospace Contracting","Tourism & Hospitality","Healthcare Services","Agriculture & Agribusiness","Construction & Real Estate","Seafood & Food Distribution","Professional Services"];
@@ -351,6 +599,9 @@ function seedClients(){
     const heldProducts = [...products].sort(()=>0.5-Math.random()).slice(0,heldCount);
     const lastContact = new Date(today.getTime() - Math.floor(Math.random()*40)*86400000);
     const nextFollow = new Date(today.getTime() + Math.floor((stage==="atrisk"?-3:1)+Math.random()*20)*86400000);
+    // How long the relationship has been on the books — prospects have none yet.
+    const tenureDays = stage==="prospect" ? 0 : Math.floor(90 + Math.random()*2100); // ~3 months to ~5.7 years
+    const established = new Date(today.getTime() - tenureDays*86400000);
     return {
       id:"c"+(i+1),
       name:n[0],
@@ -367,6 +618,7 @@ function seedClients(){
       email: n[0].toLowerCase().replace(/[^a-z0-9]+/g,"")+"@example-biz.com",
       lastContact: lastContact.toISOString().slice(0,10),
       nextFollow: nextFollow.toISOString().slice(0,10),
+      established: established.toISOString().slice(0,10),
       notes:[
         {date: lastContact.toISOString().slice(0,10), text:"Initial relationship review — discussed current banking needs and growth plans for the season."}
       ]
@@ -391,6 +643,497 @@ function seedTasks(clients){
 }
 
 let STATE = { clients:[], tasks:[] };
+
+/* ---------------- EXECUTIVE VIEW: ORG HIERARCHY ---------------- */
+/* Deterministic pseudo-random so peer BRM figures stay stable across reloads
+   without needing their own storage — seeded from the node's name. */
+function seededRandom(seedStr){
+  let h = 1779033703 ^ seedStr.length;
+  for(let i=0;i<seedStr.length;i++){
+    h = Math.imul(h ^ seedStr.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  return function(){
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  };
+}
+function seededRange(rng, min, max){ return min + rng()*(max-min); }
+
+const PEER_FIRST = ["Marcus","Elena","Devon","Priya","Sam","Katherine","Rui","Aisha","Tom","Naomi","Carlos","Ingrid","Jordan","Meera","Owen"];
+const PEER_LAST = ["Reyes","Whitfield","Okoro","Chandra","Bellamy","Voss","Tanaka","Muldoon","Ferreira","Osei","Lindqvist","Delacroix","Achebe","Winslow"];
+function peerName(seedStr){
+  const rng = seededRandom(seedStr+"-name");
+  return PEER_FIRST[Math.floor(rng()*PEER_FIRST.length)]+" "+PEER_LAST[Math.floor(rng()*PEER_LAST.length)];
+}
+
+function generatePeerMetrics(seedStr){
+  const rng = seededRandom(seedStr);
+  const clients = Math.round(seededRange(rng,7,28));
+  const atRiskCount = Math.round(seededRange(rng,0,clients*0.22));
+  const deposits = Math.round(seededRange(rng,350,2800))*1000;
+  return {
+    deposits,
+    health: Math.round(seededRange(rng,38,92)),
+    clients,
+    atRiskCount,
+    avgProducts: Math.round(seededRange(rng,1.1,4.2)*10)/10,
+    avgTenureYears: Math.round(seededRange(rng,0.4,6.5)*10)/10,
+    depositPerClient: clients ? Math.round(deposits/clients) : 0,
+    brmCount:1
+  };
+}
+function computeYouMetrics(){
+  const c = STATE.clients;
+  const clients = c.length;
+  const atRiskCount = c.filter(x=>x.stage==='atrisk').length;
+  const deposits = c.reduce((s,x)=>s+x.deposits,0);
+  const health = clients ? Math.round(c.reduce((s,x)=>s+x.health,0)/clients) : 0;
+  const avgProducts = clients ? Math.round((c.reduce((s,x)=>s+x.heldProducts.length,0)/clients)*10)/10 : 0;
+  const today = new Date();
+  const tenureYearsList = c.map(x=>{
+    const estStr = x.established || x.lastContact; // graceful fallback for older saved data
+    const est = new Date(estStr+"T00:00:00");
+    return Math.max(0, (today - est) / (365.25*86400000));
+  });
+  const avgTenureYears = clients ? Math.round((tenureYearsList.reduce((s,v)=>s+v,0)/clients)*10)/10 : 0;
+  const depositPerClient = clients ? Math.round(deposits/clients) : 0;
+  return { deposits, health, clients, atRiskCount, avgProducts, avgTenureYears, depositPerClient, brmCount:1 };
+}
+
+function buildOrgTree(){
+  // Helpers now accept any number of children — most levels stay at 2 for direct
+  // comparison, but a level can hold more (e.g. US regions) and will render as a
+  // grid instead of a single VS pair.
+  function city(name, ...brms){ return { level:'city', name, children:brms }; }
+  function brm(name, seedPath, isYou){
+    return { level:'brm', name, isYou:!!isYou, _metrics: isYou ? computeYouMetrics() : generatePeerMetrics(seedPath) };
+  }
+  function state(name, ...cities){ return { level:'state', name, children:cities }; }
+  function region(name, ...states){ return { level:'region', name, children:states }; }
+  function country(name, ...regions){ return { level:'country', name, children:regions }; }
+
+  const pensacola = city('Pensacola',
+    brm('Phillip Shawn Dobbs','pensacola-you',true),
+    brm(peerName('pensacola-peer'),'pensacola-peer',false)
+  );
+  const tallahassee = city('Tallahassee',
+    brm(peerName('tallahassee-1'),'tallahassee-1',false),
+    brm(peerName('tallahassee-2'),'tallahassee-2',false)
+  );
+  const mobile = city('Mobile',
+    brm(peerName('mobile-1'),'mobile-1',false),
+    brm(peerName('mobile-2'),'mobile-2',false)
+  );
+  const birmingham = city('Birmingham',
+    brm(peerName('birmingham-1'),'birmingham-1',false),
+    brm(peerName('birmingham-2'),'birmingham-2',false)
+  );
+  const nyc = city('New York City',
+    brm(peerName('nyc-1'),'nyc-1',false),
+    brm(peerName('nyc-2'),'nyc-2',false)
+  );
+  const albany = city('Albany',
+    brm(peerName('albany-1'),'albany-1',false),
+    brm(peerName('albany-2'),'albany-2',false)
+  );
+  const boston = city('Boston',
+    brm(peerName('boston-1'),'boston-1',false),
+    brm(peerName('boston-2'),'boston-2',false)
+  );
+  const worcester = city('Worcester',
+    brm(peerName('worcester-1'),'worcester-1',false),
+    brm(peerName('worcester-2'),'worcester-2',false)
+  );
+  const london = city('Central London',
+    brm(peerName('london-1'),'london-1',false),
+    brm(peerName('london-2'),'london-2',false)
+  );
+  const croydon = city('Croydon',
+    brm(peerName('croydon-1'),'croydon-1',false),
+    brm(peerName('croydon-2'),'croydon-2',false)
+  );
+  const canterbury = city('Canterbury',
+    brm(peerName('canterbury-1'),'canterbury-1',false),
+    brm(peerName('canterbury-2'),'canterbury-2',false)
+  );
+  const maidstone = city('Maidstone',
+    brm(peerName('maidstone-1'),'maidstone-1',false),
+    brm(peerName('maidstone-2'),'maidstone-2',false)
+  );
+  const manchester = city('Manchester',
+    brm(peerName('manchester-1'),'manchester-1',false),
+    brm(peerName('manchester-2'),'manchester-2',false)
+  );
+  const salford = city('Salford',
+    brm(peerName('salford-1'),'salford-1',false),
+    brm(peerName('salford-2'),'salford-2',false)
+  );
+  const leeds = city('Leeds',
+    brm(peerName('leeds-1'),'leeds-1',false),
+    brm(peerName('leeds-2'),'leeds-2',false)
+  );
+  const bradford = city('Bradford',
+    brm(peerName('bradford-1'),'bradford-1',false),
+    brm(peerName('bradford-2'),'bradford-2',false)
+  );
+
+  // Southwest Region
+  const sanAntonio = city('San Antonio',
+    brm(peerName('sanantonio-1'),'sanantonio-1',false),
+    brm(peerName('sanantonio-2'),'sanantonio-2',false)
+  );
+  const austin = city('Austin',
+    brm(peerName('austin-1'),'austin-1',false),
+    brm(peerName('austin-2'),'austin-2',false)
+  );
+  const phoenix = city('Phoenix',
+    brm(peerName('phoenix-1'),'phoenix-1',false),
+    brm(peerName('phoenix-2'),'phoenix-2',false)
+  );
+  const tucson = city('Tucson',
+    brm(peerName('tucson-1'),'tucson-1',false),
+    brm(peerName('tucson-2'),'tucson-2',false)
+  );
+
+  // Northwest Region
+  const seattle = city('Seattle',
+    brm(peerName('seattle-1'),'seattle-1',false),
+    brm(peerName('seattle-2'),'seattle-2',false)
+  );
+  const spokane = city('Spokane',
+    brm(peerName('spokane-1'),'spokane-1',false),
+    brm(peerName('spokane-2'),'spokane-2',false)
+  );
+  const portland = city('Portland',
+    brm(peerName('portland-1'),'portland-1',false),
+    brm(peerName('portland-2'),'portland-2',false)
+  );
+  const eugene = city('Eugene',
+    brm(peerName('eugene-1'),'eugene-1',false),
+    brm(peerName('eugene-2'),'eugene-2',false)
+  );
+
+  // Central Region
+  const chicago = city('Chicago',
+    brm(peerName('chicago-1'),'chicago-1',false),
+    brm(peerName('chicago-2'),'chicago-2',false)
+  );
+  const springfield = city('Springfield',
+    brm(peerName('springfield-1'),'springfield-1',false),
+    brm(peerName('springfield-2'),'springfield-2',false)
+  );
+  const columbus = city('Columbus',
+    brm(peerName('columbus-1'),'columbus-1',false),
+    brm(peerName('columbus-2'),'columbus-2',false)
+  );
+  const cleveland = city('Cleveland',
+    brm(peerName('cleveland-1'),'cleveland-1',false),
+    brm(peerName('cleveland-2'),'cleveland-2',false)
+  );
+
+  const florida = state('Florida', pensacola, tallahassee);
+  const alabama = state('Alabama', mobile, birmingham);
+  const newyork = state('New York', nyc, albany);
+  const massachusetts = state('Massachusetts', boston, worcester);
+  const greaterLondon = state('Greater London', london, croydon);
+  const kent = state('Kent', canterbury, maidstone);
+  const greaterManchester = state('Greater Manchester', manchester, salford);
+  const westYorkshire = state('West Yorkshire', leeds, bradford);
+  const texas = state('Texas', sanAntonio, austin);
+  const arizona = state('Arizona', phoenix, tucson);
+  const washington = state('Washington', seattle, spokane);
+  const oregon = state('Oregon', portland, eugene);
+  const illinois = state('Illinois', chicago, springfield);
+  const ohio = state('Ohio', columbus, cleveland);
+
+  const southeast = region('Southeast Region', florida, alabama);
+  const northeast = region('Northeast Region', newyork, massachusetts);
+  const southwest = region('Southwest Region', texas, arizona);
+  const northwest = region('Northwest Region', washington, oregon);
+  const central = region('Central Region', illinois, ohio);
+  const ukSouth = region('South England', greaterLondon, kent);
+  const ukNorth = region('North England', greaterManchester, westYorkshire);
+
+  const usa = country('Global Bank USA', southeast, northeast, southwest, northwest, central);
+  const uk = country('Global Bank United Kingdom', ukSouth, ukNorth);
+
+  return { level:'company', name:'Global Bank', children:[usa, uk] };
+}
+
+function aggregate(node){
+  if(node._metrics) return node._metrics;
+  const kids = node.children.map(aggregate);
+  const clients = kids.reduce((s,k)=>s+k.clients,0);
+  const atRiskCount = kids.reduce((s,k)=>s+k.atRiskCount,0);
+  const deposits = kids.reduce((s,k)=>s+k.deposits,0);
+  const brmCount = kids.reduce((s,k)=>s+k.brmCount,0);
+  const health = clients ? Math.round(kids.reduce((s,k)=>s+k.health*k.clients,0)/clients) : 0;
+  const avgProducts = clients ? Math.round((kids.reduce((s,k)=>s+k.avgProducts*k.clients,0)/clients)*10)/10 : 0;
+  const avgTenureYears = clients ? Math.round((kids.reduce((s,k)=>s+k.avgTenureYears*k.clients,0)/clients)*10)/10 : 0;
+  const depositPerClient = clients ? Math.round(deposits/clients) : 0;
+  node._metrics = { deposits, health, clients, atRiskCount, avgProducts, avgTenureYears, depositPerClient, brmCount };
+  return node._metrics;
+}
+
+/* Flattens every BRM leaf in the org tree and ranks "you" against all peers
+   using a composite of deposits-per-client and average relationship tenure —
+   the two factors requested for the sidebar ranking badge. */
+function flattenBRMs(node, out){
+  out = out || [];
+  if(node.level==='brm'){ out.push(node); return out; }
+  node.children.forEach(c=>flattenBRMs(c, out));
+  return out;
+}
+function computeYourRank(){
+  if(!ORG_ROOT) return null;
+  const leaves = flattenBRMs(ORG_ROOT);
+  const dpcVals = leaves.map(n=>n._metrics.depositPerClient);
+  const tenureVals = leaves.map(n=>n._metrics.avgTenureYears);
+  const dpcMin=Math.min(...dpcVals), dpcMax=Math.max(...dpcVals);
+  const tenMin=Math.min(...tenureVals), tenMax=Math.max(...tenureVals);
+  const norm=(v,lo,hi)=> hi>lo ? (v-lo)/(hi-lo) : 0.5;
+  const scored = leaves.map(n=>{
+    const m = n._metrics;
+    const score = 0.5*norm(m.depositPerClient,dpcMin,dpcMax) + 0.5*norm(m.avgTenureYears,tenMin,tenMax);
+    return { node:n, score };
+  }).sort((a,b)=>b.score-a.score);
+  const yourIndex = scored.findIndex(s=>s.node.isYou);
+  if(yourIndex===-1) return null;
+  return { rank: yourIndex+1, total: scored.length, percentile: Math.round((1-(yourIndex/(scored.length-1)))*100) };
+}
+
+let ORG_ROOT = null;
+let HOME_PATH = [];
+function findChild(node, name){ return (node.children||[]).find(c=>c.name===name); }
+function buildHomePath(){
+  const usa = findChild(ORG_ROOT, 'Global Bank USA');
+  const southeast = usa && findChild(usa, 'Southeast Region');
+  const florida = southeast && findChild(southeast, 'Florida');
+  const pensacola = florida && findChild(florida, 'Pensacola');
+  HOME_PATH = [ORG_ROOT, usa, southeast, florida, pensacola].filter(Boolean);
+}
+const HOME_PATH_LABELS = ['Nation','Region','State','Managers']; // one per HOME_PATH entry, skipping the root ("Global Bank") level
+function renderHomePathRow(){
+  const el = document.getElementById('exec-home-path');
+  if(!el || HOME_PATH.length<2) return;
+  const currentNode = execPath[execPath.length-1];
+  let html = `<span class="home-path-lbl">Your path:</span>`;
+  for(let i=1;i<HOME_PATH.length;i++){
+    const n = HOME_PATH[i];
+    html += `${i>1?'<span class="exec-sep">›</span>':''}<button class="exec-crumb home-crumb ${n===currentNode?'current':''}" data-home-idx="${i}" title="${n.name}">${HOME_PATH_LABELS[i-1]||n.name}</button>`;
+  }
+  el.innerHTML = html;
+  el.querySelectorAll('.home-crumb').forEach(b=>{
+    b.onclick = ()=>{ execPath = HOME_PATH.slice(0, parseInt(b.dataset.homeIdx)+1); renderExecCurrent(); };
+  });
+}
+let execPath = [];
+
+function levelLabel(l){ return {company:'Company',country:'Country',region:'Region',state:'State',city:'City',brm:'Relationship Manager'}[l]; }
+
+function renderExecBreadcrumb(){
+  const html = execPath.map((n,i)=>{
+    const isLast = i===execPath.length-1;
+    return `${i>0?'<span class="exec-sep">›</span>':''}<button class="exec-crumb ${isLast?'current':''}" data-idx="${i}">${n.name}</button>`;
+  }).join('');
+  document.getElementById('exec-breadcrumb').innerHTML = html;
+  document.querySelectorAll('.exec-crumb').forEach(b=>{
+    b.onclick = ()=>{ execPath = execPath.slice(0, parseInt(b.dataset.idx)+1); renderExecCurrent(); };
+  });
+}
+
+function nodeMetricsHTML(m){
+  const atRiskPct = m.clients ? Math.round((m.atRiskCount/m.clients)*100) : 0;
+  return `<div class="node-metrics">
+    <div class="node-metric"><div class="m-val">${fmtMoney(m.deposits)}</div><div class="m-lbl">Deposits</div></div>
+    <div class="node-metric"><div class="m-val" style="color:${healthColor(m.health)}">${m.health}</div><div class="m-lbl">Avg. Health</div></div>
+    <div class="node-metric"><div class="m-val">${m.clients}</div><div class="m-lbl">Clients</div></div>
+    <div class="node-metric"><div class="m-val" style="color:${atRiskPct>15?'var(--danger)':'var(--ink)'}">${atRiskPct}%</div><div class="m-lbl">At-Risk</div></div>
+  </div>`;
+}
+
+function healthTier(h){ return h>=65?'tier-good':h>=40?'tier-warn':'tier-danger'; }
+
+function renderExecCurrent(){
+  const current = execPath[execPath.length-1];
+  renderExecBreadcrumb();
+  renderHomePathRow();
+
+  const ctx = document.getElementById('exec-context');
+  const n = current.children.length;
+  const countWord = n===2 ? 'two' : n;
+  if(current.level==='company'){
+    const m = aggregate(current);
+    ctx.innerHTML = `Comparing the ${countWord} countries of <b>${current.name}</b> — ${m.brmCount} relationship managers, ${fmtMoney(m.deposits)} in aggregate deposits worldwide.`;
+  } else {
+    const m = aggregate(current);
+    ctx.innerHTML = `Comparing ${countWord} ${levelLabel(current.children[0].level).toLowerCase()}${n===1?'':'s'} within <b>${current.name}</b> (${levelLabel(current.level)}) — ${m.brmCount} relationship manager${m.brmCount===1?'':'s'}, ${fmtMoney(m.deposits)} in deposits.`;
+  }
+
+  const compareEl = document.getElementById('exec-compare');
+  if(current.level==='brm'){
+    // Shouldn't normally render here — brm clicks are handled separately.
+    compareEl.innerHTML = '';
+    return;
+  }
+  if(current.children.length===2){
+    const [a,b] = current.children;
+    compareEl.classList.remove('grid-mode');
+    compareEl.innerHTML = `
+      ${nodeCardHTML(a)}
+      <div class="compare-vs"><span>VS</span></div>
+      ${nodeCardHTML(b)}
+    `;
+  } else {
+    compareEl.classList.add('grid-mode');
+    compareEl.innerHTML = current.children.map(nodeCardHTML).join('');
+  }
+  document.querySelectorAll('.node-card').forEach(card=>{
+    card.onclick = ()=> handleNodeClick(card.dataset.path);
+  });
+}
+
+// Keep a lookup so we can find node objects by a stable path key without storing DOM refs
+let NODE_LOOKUP = {};
+function registerNode(node, key){ NODE_LOOKUP[key]=node; return key; }
+
+function nodeCardHTML(node){
+  const m = aggregate(node);
+  const key = node.__key || (node.__key = Math.random().toString(36).slice(2));
+  registerNode(node, key);
+  const sub = node.level==='brm' ? (node.isYou ? 'You' : 'Peer Relationship Manager') : `${levelLabel(node.level)} · ${m.brmCount} RM${m.brmCount===1?'':'s'}`;
+  return `<div class="node-card ${healthTier(m.health)}" data-path="${key}">
+    <div class="level-eyebrow">${levelLabel(node.level)}</div>
+    <div class="node-name">${node.name}${node.isYou?'<span class="you-tag">You</span>':''}</div>
+    <div class="node-sub">${sub}</div>
+    ${nodeMetricsHTML(m)}
+    <div class="node-cta">${node.level==='brm' ? (node.isYou ? 'Open your ledger →' : 'View peer snapshot →') : 'Drill in →'}</div>
+  </div>`;
+}
+
+function handleNodeClick(key){
+  const node = NODE_LOOKUP[key];
+  if(!node) return;
+  if(node.level==='brm'){
+    if(node.isYou){
+      switchView('clients');
+    } else {
+      openPeerSnapshot(node);
+    }
+    return;
+  }
+  execPath.push(node);
+  renderExecCurrent();
+}
+
+function openPeerSnapshot(node){
+  const m = aggregate(node);
+  const atRiskPct = m.clients ? Math.round((m.atRiskCount/m.clients)*100) : 0;
+  const drawer = document.getElementById('drawer');
+  drawer.innerHTML = `
+    <div class="drawer-head">
+      <button class="drawer-close" id="drawer-close">✕</button>
+      <h2 style="color:var(--navy);font-size:22px;">${node.name}</h2>
+      <div style="color:var(--ink-soft);font-size:13px;margin-top:4px;">Peer Relationship Manager · Simulated aggregate snapshot</div>
+    </div>
+    <div class="drawer-body">
+      <div class="exec-context" style="margin-bottom:20px;">Read-only comparison data — peer BRM detail (individual clients, notes, and contacts) isn't modeled in this proof of concept.</div>
+      ${nodeMetricsHTML(m)}
+      <div class="section-title" style="margin-top:26px;">Avg. Products Held per Client</div>
+      <div class="card" style="padding:16px 18px;"><div class="stat-card"><div class="value" style="font-size:26px;">${m.avgProducts}</div><div class="sub">Product lines, portfolio average</div></div></div>
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('active');
+  drawer.classList.add('active');
+  document.getElementById('drawer-close').onclick = closeDrawer;
+  document.getElementById('overlay').onclick = closeDrawer;
+}
+
+/* ---------------- INDUSTRY BENCHMARK PANEL ----------------
+   Real figures are cited, dated industry data (not tied to any single named
+   competitor). Global Bank's own figures are simulated for this proof of
+   concept — seeded so they stay consistent across reloads — and are labeled
+   as such throughout. */
+const INDUSTRY_BENCHMARKS = [
+  {
+    key:'efficiency', label:'Efficiency Ratio', lowerIsBetter:true,
+    industryValue:58, industryDisplay:'~58% (2025 median)',
+    source:'KBW Nasdaq Bank Index / Morningstar — combined efficiency ratio improved from 61.2% (2024) to 58.7% (2025), projected toward 56.6% in 2026.'
+  },
+  {
+    key:'roa', label:'Return on Assets (ROA)', lowerIsBetter:false,
+    industryValue:1.2, industryDisplay:'1.1%–1.3% (2025 avg.)',
+    source:'Industry-wide U.S. bank ROA averaged roughly 1.1–1.3% through 2025, with top performers above 1.3%.'
+  },
+  {
+    key:'roe', label:'Return on Equity (ROE)', lowerIsBetter:false,
+    industryValue:12, industryDisplay:'~12% (2026 avg.)',
+    source:'McKinsey Global Banking Annual Review 2026 — U.S. banking ROE rose to roughly 12%, driven in part by wealth-management revenue.'
+  },
+];
+
+function computeSimulatedGlobalBankBenchmarks(){
+  const effRng = seededRandom('gb-benchmark-efficiency');
+  const roaRng = seededRandom('gb-benchmark-roa');
+  const roeRng = seededRandom('gb-benchmark-roe');
+  return {
+    efficiency: Math.round(seededRange(effRng, 51, 64) * 10) / 10,
+    roa: Math.round(seededRange(roaRng, 0.85, 1.6) * 100) / 100,
+    roe: Math.round(seededRange(roeRng, 8.5, 16) * 10) / 10,
+  };
+}
+
+function renderIndustryPanel(){
+  const grid = document.getElementById('bench-grid');
+  const details = document.getElementById('industry-details');
+  if(!grid) return;
+  const sim = computeSimulatedGlobalBankBenchmarks();
+
+  grid.innerHTML = INDUSTRY_BENCHMARKS.map(b=>{
+    const gVal = sim[b.key];
+    const gDisplay = b.key==='roa' ? gVal.toFixed(2)+'%' : gVal+'%';
+    const beating = b.lowerIsBetter ? gVal < b.industryValue : gVal > b.industryValue;
+    return `<div class="bench-card">
+      <div class="bench-lbl">${b.label}</div>
+      <div class="bench-global">${gDisplay}</div>
+      <div class="bench-industry">Industry: ${b.industryDisplay}</div>
+      <div class="bench-delta ${beating?'up':'down'}">${beating?'▲ Above industry':'▼ Below industry'}</div>
+    </div>`;
+  }).join('');
+
+  details.innerHTML = `
+    <div><b>Global Bank figures are simulated</b> for this proof of concept — seeded so they stay consistent across reloads, not derived from any real institution's financials.</div>
+    ${INDUSTRY_BENCHMARKS.map(b=>`<div class="src-line"><b>${b.label}:</b> ${b.source}</div>`).join('')}
+    <div class="src-line">Compiled from public industry reporting, August 2026. Figures reflect broad industry medians/averages, not any single named competitor — treat as directional context, not a certified benchmark.</div>
+  `;
+}
+
+function renderExec(){
+  renderIndustryPanel();
+  renderHomePathRow();
+  renderExecCurrent();
+}
+
+document.addEventListener('click', (e)=>{
+  if(e.target && e.target.id==='industry-toggle-btn'){
+    const details = document.getElementById('industry-details');
+    const showing = details.style.display !== 'none';
+    details.style.display = showing ? 'none' : 'block';
+    e.target.textContent = showing ? 'Show sources ▾' : 'Hide sources ▴';
+  }
+});
+
+function renderBrandRank(){
+  const rankInfo = computeYourRank();
+  const el = document.getElementById('brand-rank');
+  if(!rankInfo || !el) return;
+  const topPct = Math.max(1, Math.round((rankInfo.rank/rankInfo.total)*100));
+  el.innerHTML = `<span class="rank-num">#${rankInfo.rank}</span> of ${rankInfo.total} BRMs · Top ${topPct}%`;
+  el.title = 'Ranked across all Global Bank relationship managers by deposits-per-client and average relationship tenure.';
+}
 
 /* ---------------- STORAGE ---------------- */
 /* Uses localStorage (browser-native, works on GitHub Pages / any static host).
@@ -440,7 +1183,179 @@ function healthRing(h){
   </svg>`;
 }
 
+/* Generic overhead street-map thumbnail — entirely schematic, not real geography.
+   Illustrates where a live maps/directions integration could be embedded. */
+function mapThumbnailSVG(seedStr){
+  const rng = seededRandom('map-'+seedStr);
+  const roadsV = [18+rng()*10, 55+rng()*12, 92+rng()*10];
+  const roadsH = [16+rng()*8, 40+rng()*8];
+  const parkX = 8+rng()*70, parkY = 6+rng()*24, parkW = 20+rng()*14, parkH = 12+rng()*10;
+  const pinX = 40+rng()*40, pinY = 20+rng()*20;
+  return `<svg viewBox="0 0 120 60" preserveAspectRatio="xMidYMid slice">
+    <rect width="120" height="60" fill="#EDEAE1"/>
+    <rect x="${parkX}" y="${parkY}" width="${parkW}" height="${parkH}" rx="2" fill="#DCE6D8"/>
+    ${roadsV.map(x=>`<rect x="${x}" y="0" width="3.2" height="60" fill="#FFFFFF"/>`).join('')}
+    ${roadsH.map(y=>`<rect x="0" y="${y}" width="120" height="3" fill="#FFFFFF"/>`).join('')}
+    <circle cx="${pinX}" cy="${pinY}" r="9" fill="#1A73E8" opacity="0.16"/>
+    <path d="M${pinX} ${pinY-7}c-3.4 0-6 2.6-6 6c0 4.4 6 10 6 10s6-5.6 6-10c0-3.4-2.6-6-6-6z" fill="#D64545"/>
+    <circle cx="${pinX}" cy="${pinY-1}" r="2.1" fill="#FFFFFF"/>
+  </svg>`;
+}
+
+function routeWidgetHTML(cl){
+  const etaRng = seededRandom('eta-'+cl.id);
+  const eta = Math.round(seededRange(etaRng, 4, 64));
+  return `<div class="route-widget" onclick="event.stopPropagation()">
+    <div class="route-map">${mapThumbnailSVG(cl.id)}</div>
+    <div class="route-actions">
+      <button class="route-directions-btn" type="button">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M2 8L13 2.5L10.5 13.5L8 9L2 8Z" fill="#fff"/></svg>
+        Directions
+      </button>
+      <span class="route-eta">${eta} min</span>
+      <button class="route-go-btn" type="button">GO</button>
+    </div>
+  </div>`;
+}
+
 /* ---------------- RENDER: DASHBOARD ---------------- */
+/* ---------------- PORTFOLIO COPILOT ----------------
+   A deliberately honest simulation of an agentic assistant: rule-based
+   keyword/pattern matching against real client data (not a live LLM call —
+   see chat context on why that can't run once this is a static file), with
+   a visible staged "reasoning trace" matching the multi-step pattern real
+   agentic banking tools use. */
+function parseAndRunQuery(rawQuery){
+  const query = rawQuery.toLowerCase();
+  let results = [...STATE.clients];
+  const filtersApplied = [];
+
+  if(/at.?-?risk/.test(query)){ results = results.filter(c=>c.stage==='atrisk'); filtersApplied.push('stage: at-risk'); }
+  else if(/prospect/.test(query)){ results = results.filter(c=>c.stage==='prospect'); filtersApplied.push('stage: prospect'); }
+  else if(/onboarding/.test(query)){ results = results.filter(c=>c.stage==='onboarding'); filtersApplied.push('stage: onboarding'); }
+  else if(/\bactive\b/.test(query)){ results = results.filter(c=>c.stage==='active'); filtersApplied.push('stage: active'); }
+
+  const locMatch = NEIGHBORHOODS.find(n => {
+    const words = n.split(',')[0].toLowerCase().split(/\s+/).filter(w=>w.length>=4);
+    return words.some(w => query.includes(w));
+  });
+  if(locMatch){ results = results.filter(c=>c.location===locMatch); filtersApplied.push('location: '+locMatch); }
+
+  const industryMatch = INDUSTRIES.find(ind => {
+    const words = ind.toLowerCase().replace('&','').split(/\s+/).filter(w=>w.length>3);
+    return words.some(w=>query.includes(w));
+  });
+  if(industryMatch){ results = results.filter(c=>c.industry===industryMatch); filtersApplied.push('industry: '+industryMatch); }
+
+  if(/no product|zero product|without.*product/.test(query)){ results = results.filter(c=>c.heldProducts.length===0); filtersApplied.push('holds 0 products'); }
+  else if(/one product|single product/.test(query)){ results = results.filter(c=>c.heldProducts.length===1); filtersApplied.push('holds 1 product'); }
+
+  let sortLabel = null;
+  if(/highest deposit|top deposit|biggest deposit|largest deposit/.test(query)){ results.sort((a,b)=>b.deposits-a.deposits); sortLabel='deposits, high to low'; }
+  else if(/lowest deposit|smallest deposit/.test(query)){ results.sort((a,b)=>a.deposits-b.deposits); sortLabel='deposits, low to high'; }
+  else if(/highest revenue|top revenue/.test(query)){ results.sort((a,b)=>b.revenue-a.revenue); sortLabel='revenue, high to low'; }
+  else if(/lowest health|unhealthy|weakest/.test(query)){ results.sort((a,b)=>a.health-b.health); sortLabel='health score, low to high'; }
+  else if(/highest health|healthiest/.test(query)){ results.sort((a,b)=>b.health-a.health); sortLabel='health score, high to low'; }
+  else if(/longest|oldest relationship|tenure/.test(query)){ results.sort((a,b)=> new Date(a.established) - new Date(b.established)); sortLabel='tenure, longest first'; }
+
+  if(filtersApplied.length===0 && !sortLabel){
+    const terms = query.split(/\s+/).filter(Boolean);
+    if(terms.length){
+      results = results.filter(c => terms.some(t =>
+        c.name.toLowerCase().includes(t) || c.industry.toLowerCase().includes(t) || c.location.toLowerCase().includes(t)
+      ));
+    }
+  }
+  return { results, filtersApplied, sortLabel };
+}
+
+function renderTraceSteps(steps, activeIndex){
+  return steps.map((s,i)=>`<div class="trace-step ${i<activeIndex?'done':i===activeIndex?'active':''}"><span class="trace-dot"></span>${s}</div>`).join('');
+}
+
+/* Simulated "most efficient routing" — there's no real geocoding in this demo
+   (client locations are city-level strings, not coordinates), so true
+   turn-by-turn route optimization isn't possible. Instead, this groups
+   clients who need contact by a fixed west-to-east geographic ordering that
+   roughly follows the real Pensacola–Baldwin County corridor, which avoids
+   the worst backtracking a random visit order would cause. Clearly labeled
+   as a simplified heuristic, not GPS-grade optimization. */
+const ROUTE_ORDER = ["Perdido Key, FL","Downtown Pensacola, FL","Gulf Breeze, FL","Milton, FL","Pace, FL","Orange Beach, AL","Foley, AL","Robertsdale, AL","Daphne, AL","Fairhope, AL"];
+function computeEfficientRoute(){
+  const today = new Date(new Date().toDateString());
+  const needsContact = STATE.clients.filter(c=>{
+    if(c.stage==='atrisk') return true;
+    if(!c.nextFollow) return false;
+    return new Date(c.nextFollow+'T00:00:00') <= today; // due today or overdue
+  });
+  return [...needsContact].sort((a,b)=> ROUTE_ORDER.indexOf(a.location) - ROUTE_ORDER.indexOf(b.location));
+}
+
+async function runCopilot(query){
+  const traceEl = document.getElementById('copilot-trace');
+  const resultsEl = document.getElementById('copilot-results');
+  const isRouting = /routing|route|driving/.test(query.toLowerCase());
+  const steps = isRouting
+    ? ['Identifying clients needing contact','Mapping approximate locations','Sequencing for shortest route']
+    : ['Parsing your request','Scanning portfolio','Applying filters','Ranking results'];
+  traceEl.style.display = 'block';
+  resultsEl.innerHTML = '';
+  for(let i=0;i<steps.length;i++){
+    traceEl.innerHTML = renderTraceSteps(steps, i);
+    await new Promise(r=>setTimeout(r, 240));
+  }
+  traceEl.innerHTML = renderTraceSteps(steps, steps.length);
+  await new Promise(r=>setTimeout(r, 220));
+  traceEl.style.display = 'none';
+
+  if(isRouting){
+    const stops = computeEfficientRoute();
+    resultsEl.innerHTML = `
+      <div class="copilot-summary">${stops.length} stop${stops.length===1?'':'s'} — simulated route ordered by geographic proximity along the Pensacola–Baldwin corridor (not GPS-optimized; client locations are city-level, not exact addresses)</div>
+      ${stops.length ? stops.map((cl,idx)=>`
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <div class="stop-badge">${idx+1}</div>
+          <div style="flex:1;">${clientRowHTML(cl,false)}</div>
+        </div>
+      `).join('') : `<div class="empty" style="padding:16px;"><p>No clients currently need contact today.</p></div>`}
+    `;
+    bindRowEvents();
+    return;
+  }
+
+  const { results, filtersApplied, sortLabel } = parseAndRunQuery(query);
+  const top = results.slice(0, 8);
+  const descParts = [...filtersApplied];
+  if(sortLabel) descParts.push('sorted by '+sortLabel);
+  const desc = descParts.length ? descParts.join(' · ') : 'keyword match on name, industry, or location';
+
+  resultsEl.innerHTML = `
+    <div class="copilot-summary">${results.length} match${results.length===1?'':'es'} — ${desc}</div>
+    ${top.length ? top.map(cl=>clientRowHTML(cl,false)).join('') : `<div class="empty" style="padding:16px;"><p>No matches — try a different phrasing.</p></div>`}
+    ${results.length>top.length ? `<div class="empty" style="padding:8px;"><p>+ ${results.length-top.length} more not shown</p></div>` : ''}
+  `;
+  bindRowEvents();
+}
+
+function initCopilot(){
+  const askBtn = document.getElementById('copilot-ask-btn');
+  const input = document.getElementById('copilot-input');
+  if(!askBtn || !input) return;
+  askBtn.onclick = ()=>{
+    const q = input.value.trim();
+    if(q) runCopilot(q);
+  };
+  input.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter'){ e.preventDefault(); askBtn.click(); }
+  });
+  document.querySelectorAll('.chip-btn').forEach(chip=>{
+    chip.onclick = ()=>{
+      input.value = chip.dataset.q;
+      runCopilot(chip.dataset.q);
+    };
+  });
+}
+
 function renderDashboard(){
   const c = STATE.clients;
   const active = c.filter(x=>x.stage==="active"||x.stage==="atrisk");
@@ -448,34 +1363,96 @@ function renderDashboard(){
   const avgHealth = Math.round(c.reduce((s,x)=>s+x.health,0)/c.length);
   const atRisk = c.filter(x=>x.stage==="atrisk");
   const prospects = c.filter(x=>x.stage==="prospect");
+  // Displayed portfolio size is set to a stated illustrative figure (155) — realistic
+  // for a BRM's book of business — without actually generating that many client
+  // records. Every other stat on this page (deposits, health, at-risk count, etc.)
+  // is still computed from the real, individually modeled clients below.
+  const DISPLAYED_PORTFOLIO_SIZE = 155;
 
   document.getElementById('stat-cards').innerHTML = `
-    <div class="card stat-card"><div class="label">Total Relationships</div><div class="value">${c.length}</div><div class="sub">${active.length} active · ${prospects.length} prospects</div></div>
-    <div class="card stat-card"><div class="label">Portfolio Deposits</div><div class="value">${fmtMoney(totalDeposits)}</div><div class="sub">Simulated aggregate balance</div></div>
-    <div class="card stat-card"><div class="label">Avg. Relationship Health</div><div class="value" style="color:${healthColor(avgHealth)}">${avgHealth}</div><div class="sub">Composite score, 0–100</div></div>
-    <div class="card stat-card"><div class="label">At-Risk Accounts</div><div class="value" style="color:var(--danger)">${atRisk.length}</div><div class="sub">Needs retention outreach</div></div>
+    <div class="card stat-card">
+      <div class="label">Total Relationships
+        <span class="info-icon" tabindex="0">i<span class="tooltip-box">
+          <span class="tt-title">Total Relationships</span>
+          Shown as ${DISPLAYED_PORTFOLIO_SIZE} — a stated, realistic BRM portfolio size for this demo. Only ${c.length} clients are individually modeled with full detail below; this total isn't computed from those records.
+        </span></span>
+      </div>
+      <div class="value">${DISPLAYED_PORTFOLIO_SIZE}</div><div class="sub">${c.length} modeled in detail below</div>
+    </div>
+    <div class="card stat-card">
+      <div class="label">Portfolio Deposits
+        <span class="info-icon" tabindex="0">i<span class="tooltip-box">
+          <span class="tt-title">Portfolio Deposits</span>
+          Sum of each client's deposit balance. In this demo, balances are simulated and editable per client. In production, this would pull live from core banking deposit account data rather than a manually entered figure.
+        </span></span>
+      </div>
+      <div class="value">${fmtMoney(totalDeposits)}</div><div class="sub">Simulated aggregate balance</div>
+    </div>
+    <div class="card stat-card">
+      <div class="label">Avg. Relationship Health
+        <span class="info-icon" tabindex="0">i<span class="tooltip-box">
+          <span class="tt-title">Avg. Relationship Health (0–100)</span>
+          In this demo, each client's score is a <b>simulated placeholder</b> you can adjust with a slider — not yet derived from a formula. A real composite score would typically weigh: contact recency, product depth, follow-up discipline, deposit trend over time, and relationship tenure.
+        </span></span>
+      </div>
+      <div class="value" style="color:${healthColor(avgHealth)}">${avgHealth}</div><div class="sub">Composite score, 0–100</div>
+    </div>
+    <div class="card stat-card">
+      <div class="label">At-Risk Accounts
+        <span class="info-icon" tabindex="0">i<span class="tooltip-box">
+          <span class="tt-title">At-Risk Accounts</span>
+          In this demo, "At-Risk" is a <b>manually assigned stage</b> per client — not yet calculated. A production model would typically flag an account at-risk based on: health score dropping below a threshold (e.g. &lt;40), declining deposit balances, overdue follow-ups, shrinking product penetration, or a competitor inquiry showing up on the client's credit file.
+        </span></span>
+      </div>
+      <div class="value" style="color:var(--danger)">${atRisk.length}</div><div class="sub">Needs retention outreach</div>
+    </div>
   `;
 
-  const attention = [...atRisk, ...prospects.slice(0,2)];
-  document.getElementById('attention-list').innerHTML = attention.length ? attention.map(clientRowHTML).join('') : `<div class="empty"><h3>All clear</h3><p>No relationships currently flagged.</p></div>`;
+  const attentionCap = 6;
+  const attention = [...atRisk.slice(0, attentionCap), ...prospects.slice(0,2)];
+  const attentionMore = Math.max(0, atRisk.length - attentionCap);
+  document.getElementById('attention-list').innerHTML = attention.length
+    ? attention.map(cl=>clientRowHTML(cl,true)).join('') + (attentionMore>0 ? `<div class="empty" style="padding:16px;"><p>+ ${attentionMore} more at-risk relationship${attentionMore===1?'':'s'} — <a href="#" id="view-all-atrisk" style="color:var(--harbor);font-weight:600;">view all in Client Portfolio</a></p></div>` : '')
+    : `<div class="empty"><h3>All clear</h3><p>No relationships currently flagged.</p></div>`;
 
   const upcoming = [...STATE.tasks].filter(t=>!t.done).sort((a,b)=>a.due.localeCompare(b.due)).slice(0,5);
   document.getElementById('dash-tasks').innerHTML = upcoming.length ? upcoming.map(taskRowHTML).join('') : `<div class="empty"><h3>Nothing due</h3><p>No open follow-ups.</p></div>`;
 
+  const viewAllLink = document.getElementById('view-all-atrisk');
+  if(viewAllLink){
+    viewAllLink.onclick = (e)=>{
+      e.preventDefault();
+      switchView('clients');
+      document.getElementById('stage-filter').value = 'atrisk';
+      renderClients();
+    };
+  }
+
   bindRowEvents();
 }
 
-function clientRowHTML(cl){
-  return `<div class="client-row" data-id="${cl.id}">
+function clientRowHTML(cl, showRoute){
+  return `<div class="client-row ${showRoute?'with-route':''}" data-id="${cl.id}">
     ${healthRing(cl.health)}
     <div>
       <div class="client-name">${cl.name}</div>
       <div class="client-meta">${cl.industry} · ${cl.location}</div>
+      <div class="client-actions">
+        <a class="action-btn" href="tel:${cl.phone||''}" onclick="event.stopPropagation()">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3.5 2.5C3.5 2.5 4.5 2 5.5 3.5C6.3 4.7 5.5 5 5.2 5.7C4.9 6.4 6 8.1 7.2 9.3C8.4 10.5 10.1 11.6 10.8 11.3C11.5 11 11.8 10.2 13 11C14.5 12 14 13 14 13C13.3 13.9 11.8 14.4 10.2 13.7C8.5 13 6.5 11.5 5.1 10.1C3.7 8.7 2.2 6.7 1.5 5C0.8 3.4 1.3 1.9 2.2 1.2C2.2 1.2 2.5 1.1 3.5 2.5Z" fill="currentColor"/></svg>
+          Call
+        </a>
+        <a class="action-btn" href="mailto:${cl.email||''}" onclick="event.stopPropagation()">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="3.5" width="13" height="9" rx="1.3" stroke="currentColor" stroke-width="1.2"/><path d="M2 4.3L8 8.8L14 4.3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Email
+        </a>
+      </div>
     </div>
     <span class="badge stage-${cl.stage}">${stageLabel(cl.stage)}</span>
     <div class="figure"><div class="num">${fmtMoney(cl.deposits)}</div><div class="lbl">Deposits</div></div>
     <div class="figure"><div class="num">$${cl.revenue}M</div><div class="lbl">Est. Revenue</div></div>
     <div class="figure"><div class="num">${fmtDate(cl.nextFollow)}</div><div class="lbl">Next Follow-up</div></div>
+    ${showRoute ? routeWidgetHTML(cl) : ''}
   </div>`;
 }
 
@@ -486,7 +1463,7 @@ function taskRowHTML(t){
     <div class="checkbox ${t.done?'checked':''}" data-task="${t.id}">${t.done?'✓':''}</div>
     <div>
       <div class="task-title">${t.title}</div>
-      <div class="task-client">${t.clientName}</div>
+      <div class="task-client task-client-link" data-open-client="${t.clientId}">${t.clientName}</div>
     </div>
     <div class="task-due ${overdue?'overdue':''}">${overdue? 'Overdue · ' : ''}${fmtDate(t.due)}</div>
   </div>`;
@@ -501,7 +1478,7 @@ function renderClients(){
     const matchStage = !stageF || c.stage===stageF;
     return matchSearch && matchStage;
   });
-  document.getElementById('client-list').innerHTML = list.length ? list.map(clientRowHTML).join('') : `<div class="empty"><h3>No matches</h3><p>Try a different search or filter.</p></div>`;
+  document.getElementById('client-list').innerHTML = list.length ? list.map(c=>clientRowHTML(c,true)).join('') : `<div class="empty"><h3>No matches</h3><p>Try a different search or filter.</p></div>`;
   bindRowEvents();
 }
 
@@ -516,6 +1493,16 @@ function bindRowEvents(){
       t.done = !t.done;
       await saveState();
       renderAll();
+    };
+  });
+  document.querySelectorAll('[data-open-client]').forEach(el=>{
+    el.onclick = (e)=>{
+      e.stopPropagation();
+      const clientId = el.dataset.openClient;
+      if(STATE.clients.some(c=>c.id===clientId)){
+        switchView('clients');
+        openClientDrawer(clientId);
+      }
     };
   });
 }
@@ -677,6 +1664,7 @@ function openNewClientDrawer(){
       email: '',
       lastContact: today,
       nextFollow: today,
+      established: today,
       notes: [{date: today, text:'New relationship added to portfolio.'}]
     });
     await saveState();
@@ -726,16 +1714,51 @@ function openNewTaskDrawer(){
 }
 
 /* ---------------- RENDER: PRODUCTS ---------------- */
+const CATEGORY_COLORS = {
+  "Deposit & Cash Management": "#5FA8A0", // seafoam
+  "Treasury & Payments": "#1B4965",       // harbor
+  "Lending": "#C08B3E",                   // brass
+  "Specialty": "#8E6FB0",                 // plum
+};
 function renderProducts(){
-  document.getElementById('product-catalog').innerHTML = PRODUCTS.map(p=>`
-    <div class="prod-card">
-      <div class="cat-label">${p.cat}</div>
-      <h3>${p.name}</h3>
-      <p>${p.desc}</p>
-      <ul>${p.features.map(f=>`<li>${f}</li>`).join('')}</ul>
-      <div class="use-case">${p.use}</div>
+  document.getElementById('product-catalog').innerHTML = PRODUCTS.map((p,i)=>{
+    const catColor = CATEGORY_COLORS[p.cat] || "#8E6FB0";
+    return `
+    <div class="prod-row" data-idx="${i}" style="border-left-color:${catColor};">
+      <button class="prod-row-header" data-toggle="${i}">
+        <div class="prod-row-header-text">
+          <div class="cat-label" style="color:${catColor};">${p.cat}</div>
+          <h3>${p.name}</h3>
+        </div>
+        <svg class="prod-row-chevron" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="prod-row-body">
+        <p>${p.desc}</p>
+        <ul>${p.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+        <div class="use-case">${p.use}</div>
+        <div class="prod-meta-row">
+          <div class="prod-meta"><div class="pm-lbl">Available Since</div><div class="pm-val">${p.availableSince}</div></div>
+          <div class="prod-meta"><div class="pm-lbl">Popularity</div><div class="pm-val">${p.popularity}</div></div>
+        </div>
+        ${p.nationalAvgRate && p.competitorRate ? `
+        <div class="prod-meta-row">
+          <div class="prod-meta rate-chip"><div class="pm-lbl">National Avg. Rate</div><div class="pm-val">${p.nationalAvgRate}</div></div>
+          <div class="prod-meta rate-chip"><div class="pm-lbl">Competitor's Rate</div><div class="pm-val">${p.competitorRate}</div></div>
+        </div>
+        <div class="rate-disclaimer">Rate figures are simulated for demonstration — not sourced from Bank of America or any real competitor.</div>
+        ` : ''}
+        <div class="prod-callout new"><b>What's new:</b> ${p.newFeature}</div>
+        <div class="prod-callout incentive"><b>Member incentive:</b> ${p.incentive}</div>
+        <button class="btn secondary small prod-collapse-btn" data-toggle="${i}" style="margin-top:14px;">Collapse ↑</button>
+      </div>
     </div>
-  `).join('');
+  `;}).join('');
+  document.querySelectorAll('[data-toggle]').forEach(el=>{
+    el.onclick = ()=>{
+      const row = document.querySelector(`.prod-row[data-idx="${el.dataset.toggle}"]`);
+      row.classList.toggle('expanded');
+    };
+  });
 }
 
 /* ---------------- RENDER: TASKS ---------------- */
@@ -757,6 +1780,7 @@ function switchView(view){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+view).classList.add('active');
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
+  if(view==='exec') renderExec();
 }
 
 document.querySelectorAll('nav button').forEach(btn=>{
@@ -772,7 +1796,12 @@ document.getElementById('reset-data-btn').onclick = resetDemoData;
   document.getElementById('main').insertAdjacentHTML('afterbegin','<div class="loading-note" id="loading-note">Loading portfolio…</div>');
   await loadState();
   document.getElementById('loading-note').remove();
+  ORG_ROOT = buildOrgTree();
+  execPath = [ORG_ROOT];
+  buildHomePath();
   renderAll();
+  renderBrandRank();
+  initCopilot();
 })();
 </script>
 </body>
