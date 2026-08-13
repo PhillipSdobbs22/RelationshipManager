@@ -523,6 +523,11 @@
 
       <div class="grid stats" id="stat-cards"></div>
 
+      <div class="briefing-teaser" id="outreach-teaser">
+        <span id="outreach-teaser-text">Checking for outreach opportunities…</span>
+        <span class="teaser-link">Open suggestions →</span>
+      </div>
+
       <div class="card copilot-panel">
         <div class="copilot-head">
           <h3>Portfolio Copilot <span class="beta-badge">Simulated · Rule-based</span></h3>
@@ -708,6 +713,41 @@ const PRODUCTS = [
 const INDUSTRIES = ["Marine & Boating Services","Defense & Aerospace Contracting","Tourism & Hospitality","Healthcare Services","Agriculture & Agribusiness","Construction & Real Estate","Seafood & Food Distribution","Professional Services"];
 const NEIGHBORHOODS = ["Downtown Pensacola, FL","Gulf Breeze, FL","Perdido Key, FL","Pace, FL","Milton, FL","Fairhope, AL","Foley, AL","Daphne, AL","Robertsdale, AL","Orange Beach, AL"];
 
+const FAVORITE_SPOT_BY_INDUSTRY = {
+  "Marine & Boating Services": "the marina clubhouse",
+  "Defense & Aerospace Contracting": "the bank's conference room",
+  "Tourism & Hospitality": "their front office",
+  "Healthcare Services": "their office",
+  "Agriculture & Agribusiness": "the co-op office",
+  "Construction & Real Estate": "the jobsite trailer",
+  "Seafood & Food Distribution": "the dockside office",
+  "Professional Services": "a downtown coffee shop",
+};
+
+/* Which product lines make the most sense to pitch first, by industry —
+   used by the outreach recommendation engine to pick a relevant unheld
+   product rather than an arbitrary one. */
+const INDUSTRY_PRODUCT_PREFERENCE = {
+  "Marine & Boating Services": ["Merchant Services","Business Advantage Equipment Financing","Business Advantage Line of Credit"],
+  "Defense & Aerospace Contracting": ["SBA Loans (7(a), 504, Express)","CashPro® Treasury & Cash Management","Business Advantage Term Loan"],
+  "Tourism & Hospitality": ["Merchant Services","Zelle® for Business","Business Advantage Line of Credit"],
+  "Healthcare Services": ["Business Advantage Line of Credit","Business Advantage Credit Cards","CashPro® Treasury & Cash Management"],
+  "Agriculture & Agribusiness": ["Business Advantage Line of Credit","Business Advantage Equipment Financing","SBA Loans (7(a), 504, Express)"],
+  "Construction & Real Estate": ["SBA Loans (7(a), 504, Express)","Business Advantage Equipment Financing","Business Advantage Line of Credit"],
+  "Seafood & Food Distribution": ["Business Advantage Line of Credit","Merchant Services","CashPro® Treasury & Cash Management"],
+  "Professional Services": ["Business Advantage Credit Cards","Preferred Rewards for Business","Business Advantage 360"],
+};
+const FALLBACK_PRODUCT_ORDER = ["Preferred Rewards for Business","Business Advantage 360","Business Advantage Line of Credit"];
+
+function recommendProductForClient(client){
+  const preferred = INDUSTRY_PRODUCT_PREFERENCE[client.industry] || [];
+  const candidates = [...preferred, ...FALLBACK_PRODUCT_ORDER];
+  for(const name of candidates){
+    if(!client.heldProducts.includes(name)) return name;
+  }
+  return null; // client already holds everything on their preference list
+}
+
 function seedClients(){
   const names = [
     ["Perdido Key Marine Supply","Marine & Boating Services"],
@@ -755,6 +795,7 @@ function seedClients(){
       primaryContact: ["Owner/Principal","CFO","General Manager","Controller","Managing Partner"][i%5],
       phone: "(850) "+String(200+Math.floor(Math.random()*700))+"-"+String(1000+Math.floor(Math.random()*8999)),
       email: n[0].toLowerCase().replace(/[^a-z0-9]+/g,"")+"@example-biz.com",
+      favoriteSpot: FAVORITE_SPOT_BY_INDUSTRY[n[1]] || "a nearby coffee shop",
       lastContact: lastContact.toISOString().slice(0,10),
       nextFollow: nextFollow.toISOString().slice(0,10),
       established: established.toISOString().slice(0,10),
@@ -1190,6 +1231,117 @@ function openPeerSnapshot(node){
   document.getElementById('drawer-close').onclick = closeDrawer;
   document.getElementById('overlay').onclick = closeDrawer;
 }
+
+/* ---------------- OUTREACH ENGINE ----------------
+   Flags clients who both need attention (not yet a full relationship) and
+   have a clear, industry-relevant product gap, then offers three real
+   meeting-scheduling paths: a genuine downloadable .ics calendar file,
+   an honest email-draft-only Zoom proposal (no real Zoom API access is
+   possible from a static file), and an in-person suggestion using each
+   client's favoriteSpot. */
+function computeOutreachFlags(){
+  return STATE.clients
+    .filter(c => c.stage !== 'prospect' && c.heldProducts.length < 3)
+    .map(c => ({ client: c, product: recommendProductForClient(c) }))
+    .filter(f => f.product)
+    .sort((a,b) => a.client.health - b.client.health);
+}
+
+function getFavoriteSpot(client){
+  return client.favoriteSpot || FAVORITE_SPOT_BY_INDUSTRY[client.industry] || 'a nearby coffee shop';
+}
+
+function generateICS(client, product){
+  const now = new Date();
+  const start = new Date(now); start.setDate(start.getDate()+1); start.setHours(10,0,0,0);
+  const end = new Date(start.getTime() + 30*60000);
+  const fmt = d => d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  const uid = 'outreach-'+client.id+'-'+Date.now()+'@personal-brm-demo.local';
+  return [
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Personal BRM Demo//EN','BEGIN:VEVENT',
+    'UID:'+uid,
+    'DTSTAMP:'+fmt(now),
+    'DTSTART:'+fmt(start),
+    'DTEND:'+fmt(end),
+    'SUMMARY:Meeting: Nathaniel Young & '+client.name,
+    'DESCRIPTION:Discuss '+product+' for '+client.name+'.',
+    'LOCATION:'+getFavoriteSpot(client),
+    'END:VEVENT','END:VCALENDAR'
+  ].join('\r\n');
+}
+function downloadICS(client, product){
+  const blob = new Blob([generateICS(client, product)], {type:'text/calendar'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'meeting-'+client.name.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.ics';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function buildOutreachMailto(type, client, product){
+  const spot = getFavoriteSpot(client);
+  let subject, body;
+  if(type==='calendar'){
+    subject = `Quick meeting to discuss ${product}`;
+    body = `Hi ${client.name} team,\n\nI think ${product} could be a good fit as your business grows. I've sent over a calendar invite for a quick chat — let me know if the time doesn't work and I'll send another.\n\nBest,\nNathaniel Young`;
+  } else if(type==='zoom'){
+    subject = `Zoom call to discuss ${product}?`;
+    body = `Hi ${client.name} team,\n\nI'd love to grab 20 minutes on Zoom to walk through ${product} and see if it's a fit for where your business is headed. Let me know a time that works and I'll send the link.\n\nBest,\nNathaniel Young`;
+  } else {
+    subject = `Meeting at ${spot}?`;
+    body = `Hi ${client.name} team,\n\nWould you be up for meeting at ${spot} sometime this week? I'd like to walk you through ${product} — think it could be a good fit.\n\nBest,\nNathaniel Young`;
+  }
+  return `mailto:${client.email||''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function openOutreachDrawer(){
+  const flags = computeOutreachFlags();
+  const drawer = document.getElementById('drawer');
+  drawer.innerHTML = `
+    <div class="drawer-head">
+      <button class="drawer-close" id="drawer-close">✕</button>
+      <h2 style="color:var(--navy);font-size:22px;">Suggested Outreach</h2>
+      <div style="color:var(--ink-soft);font-size:13px;margin-top:4px;">${flags.length} client${flags.length===1?'':'s'} with a clear product gap</div>
+    </div>
+    <div class="drawer-body">
+      <div class="exec-context" style="margin-bottom:18px;">Calendar downloads a real .ics file. Zoom and in-person draft an email proposing that meeting type — no real Zoom link or calendar system is connected in this demo.</div>
+      ${flags.map((f,idx)=>`
+        <div class="card" style="margin-bottom:14px;padding:16px 18px;">
+          <div style="font-family:'Fraunces',serif;font-size:16px;color:var(--navy);font-weight:600;">${f.client.name}</div>
+          <div style="font-size:12px;color:var(--ink-soft);margin-top:2px;">${f.client.industry} · ${f.client.location}</div>
+          <div class="prod-callout new" style="margin-top:10px;"><b>Suggested:</b> ${f.product} — holds ${f.client.heldProducts.length} product${f.client.heldProducts.length===1?'':'s'} today</div>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+            <button class="chip-btn outreach-action-btn" data-idx="${idx}" data-type="calendar">📅 Calendar invite</button>
+            <button class="chip-btn outreach-action-btn" data-idx="${idx}" data-type="zoom">💻 Zoom</button>
+            <button class="chip-btn outreach-action-btn" data-idx="${idx}" data-type="inperson">☕ In-person @ ${getFavoriteSpot(f.client)}</button>
+          </div>
+          <div class="outreach-status" id="outreach-status-${idx}" style="display:none;font-size:11px;color:var(--good);font-weight:600;margin-top:8px;"></div>
+        </div>
+      `).join('') || `<div class="empty"><h3>All caught up</h3><p>No clients currently flagged for outreach.</p></div>`}
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('active');
+  drawer.classList.add('active');
+  document.getElementById('drawer-close').onclick = closeDrawer;
+  document.getElementById('overlay').onclick = closeDrawer;
+
+  drawer.querySelectorAll('.outreach-action-btn').forEach(btn=>{
+    btn.onclick = ()=>{
+      const f = flags[parseInt(btn.dataset.idx)];
+      if(!f) return;
+      const type = btn.dataset.type;
+      if(type==='calendar') downloadICS(f.client, f.product);
+      window.location.href = buildOutreachMailto(type, f.client, f.product);
+      const statusEl = document.getElementById('outreach-status-'+btn.dataset.idx);
+      if(statusEl){
+        statusEl.textContent = type==='calendar' ? '✓ Calendar file downloaded & draft opened' : '✓ Draft opened in your mail app';
+        statusEl.style.display = 'block';
+      }
+    };
+  });
+}
+
 
 /* ---------------- INDUSTRY BENCHMARK PANEL ----------------
    Real figures are cited, dated industry data (not tied to any single named
@@ -1992,6 +2144,16 @@ function renderDashboard(){
     };
   }
 
+  const outreachFlags = computeOutreachFlags();
+  const outreachTeaserText = document.getElementById('outreach-teaser-text');
+  if(outreachTeaserText){
+    outreachTeaserText.textContent = outreachFlags.length
+      ? `${outreachFlags.length} client${outreachFlags.length===1?'':'s'} flagged for outreach today — starting with ${outreachFlags[0].client.name}`
+      : 'No clients currently flagged for outreach';
+  }
+  const outreachTeaser = document.getElementById('outreach-teaser');
+  if(outreachTeaser) outreachTeaser.onclick = openOutreachDrawer;
+
   bindRowEvents();
 }
 
@@ -2107,6 +2269,10 @@ function openClientDrawer(id){
         <div class="field"><label>Phone</label><input type="text" id="f-phone" value="${cl.phone}"></div>
         <div class="field"><label>Email</label><input type="text" id="f-email" value="${cl.email}"></div>
       </div>
+      <div class="field">
+        <label>Favorite Meeting Spot</label>
+        <input type="text" id="f-favspot" value="${getFavoriteSpot(cl)}" placeholder="e.g. the marina clubhouse">
+      </div>
 
       <div class="section-title" style="margin-top:22px;">Products Held</div>
       <div id="product-chips">
@@ -2157,6 +2323,7 @@ function openClientDrawer(id){
     cl.employees = parseInt(document.getElementById('f-employees').value)||0;
     cl.phone = document.getElementById('f-phone').value;
     cl.email = document.getElementById('f-email').value;
+    cl.favoriteSpot = document.getElementById('f-favspot').value;
     cl.lastContact = new Date().toISOString().slice(0,10);
     await saveState();
     closeDrawer();
@@ -2212,10 +2379,11 @@ function openNewClientDrawer(){
     const name = document.getElementById('nf-name').value.trim();
     if(!name){ alert('Please enter a business name.'); return; }
     const today = new Date().toISOString().slice(0,10);
+    const nfIndustry = document.getElementById('nf-industry').value;
     STATE.clients.push({
       id:'c'+Date.now(),
       name,
-      industry: document.getElementById('nf-industry').value,
+      industry: nfIndustry,
       location: document.getElementById('nf-location').value,
       stage: document.getElementById('nf-stage').value,
       health: 50,
@@ -2226,6 +2394,7 @@ function openNewClientDrawer(){
       primaryContact: document.getElementById('nf-contact').value || 'Owner/Principal',
       phone: '',
       email: '',
+      favoriteSpot: FAVORITE_SPOT_BY_INDUSTRY[nfIndustry] || 'a nearby coffee shop',
       lastContact: today,
       nextFollow: today,
       established: today,
