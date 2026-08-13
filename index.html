@@ -117,7 +117,7 @@
   .ring{width:42px;height:42px;flex-shrink:0;}
   .client-name{font-family:'Fraunces',serif;font-size:16px;color:var(--navy);font-weight:600;}
   .client-meta{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
-  .client-actions{display:flex;gap:6px;margin-top:7px;}
+  .client-actions{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap;}
   .action-btn{
     display:inline-flex;align-items:center;gap:4px;background:var(--cream);border:1px solid var(--line);color:var(--harbor);
     font-size:11px;font-weight:600;padding:4px 9px;border-radius:6px;text-decoration:none;transition:border-color .15s,color .15s;
@@ -244,8 +244,13 @@
     padding:5px 11px;border-radius:20px;white-space:nowrap;flex-shrink:0;transition:border-color .15s;
   }
   .schedule-meet-btn:hover{border-color:var(--seafoam);}
-  .schedule-panel{display:none;padding:0 16px 16px;border-top:1px solid var(--line);}
-  .schedule-panel.open{display:block;padding-top:14px;}
+  .meet-slot-panel{display:none;padding:0 16px 16px;border-top:1px solid var(--line);}
+  .meet-slot-panel.open{display:block;padding-top:14px;}
+  .client-meet-panel.open{
+    background:var(--paper);border:1px solid var(--line);border-top:none;
+    border-radius:0 0 var(--radius) var(--radius);padding:14px 18px 16px;
+    margin-top:-9px;margin-bottom:9px;
+  }
   .schedule-panel-note{font-size:11.5px;color:var(--ink-soft);margin-bottom:10px;line-height:1.5;}
   .slot-option{display:flex;align-items:center;gap:10px;background:var(--cream);border-radius:8px;padding:9px 12px;margin-bottom:8px;}
   .slot-option .slot-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--brass);background:var(--paper);padding:2px 8px;border-radius:20px;flex-shrink:0;}
@@ -2259,7 +2264,8 @@ function renderDashboard(){
 }
 
 function clientRowHTML(cl, showRoute){
-  return `<div class="client-row ${showRoute?'with-route':''}" data-id="${cl.id}">
+  return `<div class="client-row-wrap" data-client-wrap="${cl.id}">
+  <div class="client-row ${showRoute?'with-route':''}" data-id="${cl.id}">
     ${healthRing(cl.health)}
     <div>
       <div class="client-name">${cl.name}</div>
@@ -2273,6 +2279,10 @@ function clientRowHTML(cl, showRoute){
           <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="3.5" width="13" height="9" rx="1.3" stroke="currentColor" stroke-width="1.2"/><path d="M2 4.3L8 8.8L14 4.3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Email
         </a>
+        <button class="action-btn" data-schedule-client="${cl.id}" onclick="event.stopPropagation()">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="12" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 6H14.5" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 1.5V3.5M11.5 1.5V3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Schedule Meeting
+        </button>
       </div>
     </div>
     <span class="badge stage-${cl.stage}">${stageLabel(cl.stage)}</span>
@@ -2280,6 +2290,8 @@ function clientRowHTML(cl, showRoute){
     <div class="figure"><div class="num">$${cl.revenue}M</div><div class="lbl">Est. Revenue</div></div>
     <div class="figure"><div class="num">${fmtDate(cl.nextFollow)}</div><div class="lbl">Next Follow-up</div></div>
     ${showRoute ? routeWidgetHTML(cl) : ''}
+  </div>
+  <div class="meet-slot-panel client-meet-panel"></div>
   </div>`;
 }
 
@@ -2363,34 +2375,50 @@ function downloadMeetingICS(client, dateKey, hm, taskTitle){
   URL.revokeObjectURL(url);
 }
 
-function renderSchedulePanel(taskId){
-  const t = STATE.tasks.find(x=>x.id===taskId);
-  const panel = document.getElementById('schedule-panel-'+taskId);
-  if(!t || !panel) return;
-  const client = STATE.clients.find(c=>c.id===t.clientId);
-  const result = findMeetingSlots(taskId, t.due);
+/* Generic meeting-slot picker — renders into any panel element, given a
+   client, a seed key (for deterministic slot selection), a preferred due
+   date, and a title to use in the ICS/email. Used by both task rows and
+   client rows so the scheduling logic only lives in one place. */
+function renderMeetingPicker(panelEl, client, seedKey, dueDateKey, meetingTitle){
+  if(!client || !panelEl) return;
+  const result = findMeetingSlots(seedKey, dueDateKey);
   const [a, b] = result.slots;
-  panel.innerHTML = `
+  const nonce = 'n'+Math.random().toString(36).slice(2);
+  panelEl.innerHTML = `
     <div class="schedule-panel-note">${result.real
       ? `Checked against your actual schedule for ${fmtSlotDate(result.dateKey)} — both times below are genuinely open.`
       : `No real calendar exists for ${fmtSlotDate(result.dateKey)} in this demo — these two times are illustrative, not checked against anything.`}</div>
     <div class="slot-option"><span class="slot-tag">Option A</span><span class="slot-time">${fmtSlotDate(result.dateKey)}, ${fmtTime12(...a)}</span></div>
     <div class="slot-option"><span class="slot-tag">Option B</span><span class="slot-time">${fmtSlotDate(result.dateKey)}, ${fmtTime12(...b)}</span></div>
-    <button class="btn small" id="send-invite-${taskId}">Send Invite</button>
-    <div class="send-invite-status" id="invite-status-${taskId}"></div>
+    <button class="btn small" data-nonce="${nonce}">Send Invite</button>
+    <div class="send-invite-status" data-status="${nonce}"></div>
   `;
-  document.getElementById('send-invite-'+taskId).onclick = ()=>{
-    if(!client){ return; }
-    downloadMeetingICS(client, result.dateKey, a, t.title);
-    const subject = `Meeting request: ${t.title}`;
-    const body = `Hi ${client.name} team,\n\nCould we find time for: ${t.title}?\n\nOption A: ${fmtSlotDate(result.dateKey)} at ${fmtTime12(...a)}\nOption B: ${fmtSlotDate(result.dateKey)} at ${fmtTime12(...b)}\n\nEither works on my end — just reply with the one that's better for you and I'll send a calendar invite.\n\nBest,\nNathaniel Young`;
+  panelEl.querySelector(`[data-nonce="${nonce}"]`).onclick = ()=>{
+    downloadMeetingICS(client, result.dateKey, a, meetingTitle);
+    const subject = `Meeting request: ${meetingTitle}`;
+    const body = `Hi ${client.name} team,\n\nCould we find time for: ${meetingTitle}?\n\nOption A: ${fmtSlotDate(result.dateKey)} at ${fmtTime12(...a)}\nOption B: ${fmtSlotDate(result.dateKey)} at ${fmtTime12(...b)}\n\nEither works on my end — just reply with the one that's better for you and I'll send a calendar invite.\n\nBest,\nNathaniel Young`;
     window.location.href = `mailto:${client.email||''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    const statusEl = document.getElementById('invite-status-'+taskId);
+    const statusEl = panelEl.querySelector(`[data-status="${nonce}"]`);
     if(statusEl){
       statusEl.textContent = '✓ Calendar file downloaded & draft opened — offering both options';
       statusEl.style.display = 'block';
     }
   };
+}
+
+function renderSchedulePanel(taskId, panelEl){
+  const t = STATE.tasks.find(x=>x.id===taskId);
+  if(!t) return;
+  const client = STATE.clients.find(c=>c.id===t.clientId);
+  renderMeetingPicker(panelEl, client, taskId, t.due, t.title);
+}
+
+function renderClientSchedulePanel(clientId, panelEl){
+  const client = STATE.clients.find(c=>c.id===clientId);
+  if(!client) return;
+  const today = todayKey();
+  const dueDateKey = (client.nextFollow && client.nextFollow >= today) ? client.nextFollow : today;
+  renderMeetingPicker(panelEl, client, 'client-'+clientId, dueDateKey, 'Relationship check-in');
 }
 
 function taskRowHTML(t){
@@ -2406,7 +2434,7 @@ function taskRowHTML(t){
       ${!t.done ? `<button class="schedule-meet-btn" data-schedule-task="${t.id}">📅 Schedule Meeting</button>` : ''}
       <div class="task-due ${overdue?'overdue':''}">${overdue? 'Overdue · ' : ''}${fmtDate(t.due)}</div>
     </div>
-    <div class="schedule-panel" id="schedule-panel-${t.id}"></div>
+    <div class="meet-slot-panel"></div>
   </div>`;
 }
 
@@ -2450,10 +2478,22 @@ function bindRowEvents(){
     btn.onclick = (e)=>{
       e.stopPropagation();
       const taskId = btn.dataset.scheduleTask;
-      const panel = document.getElementById('schedule-panel-'+taskId);
+      const wrap = btn.closest('.task-row-wrap');
+      const panel = wrap ? wrap.querySelector('.meet-slot-panel') : null;
       if(!panel) return;
       const isOpen = panel.classList.toggle('open');
-      if(isOpen) renderSchedulePanel(taskId);
+      if(isOpen) renderSchedulePanel(taskId, panel);
+    };
+  });
+  document.querySelectorAll('[data-schedule-client]').forEach(btn=>{
+    btn.onclick = (e)=>{
+      e.stopPropagation();
+      const clientId = btn.dataset.scheduleClient;
+      const wrap = btn.closest('.client-row-wrap');
+      const panel = wrap ? wrap.querySelector('.client-meet-panel') : null;
+      if(!panel) return;
+      const isOpen = panel.classList.toggle('open');
+      if(isOpen) renderClientSchedulePanel(clientId, panel);
     };
   });
 }
