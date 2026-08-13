@@ -222,6 +222,13 @@
   }
   .use-match-link{color:var(--navy);text-decoration:underline;text-decoration-color:rgba(27,73,101,0.4);cursor:pointer;font-weight:700;}
   .use-match-link:hover{text-decoration-color:var(--navy);}
+  .use-match-item{white-space:nowrap;display:inline-block;}
+  .use-match-send{
+    background:none;border:none;cursor:pointer;color:var(--navy);font-size:11px;font-weight:600;
+    margin-left:3px;padding:1px 5px;border-radius:10px;vertical-align:middle;opacity:0.75;
+  }
+  .use-match-send:hover{opacity:1;background:rgba(15,42,63,0.1);}
+  .use-match-send.sent{color:#2F6E63;opacity:1;}
   .prod-meta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
   .prod-meta.rate-chip{background:#EFF3F6;border:1px dashed var(--line);}
   .rate-disclaimer{font-size:10.5px;color:var(--ink-soft);font-style:italic;margin-top:6px;}
@@ -2760,7 +2767,7 @@ function renderProducts(){
             if(!matches.length) return '';
             const shown = matches.slice(0,4);
             const more = matches.length - shown.length;
-            const links = shown.map(c=>`<a class="use-match-link" data-open-client="${c.id}">${c.name}</a>`).join(', ');
+            const links = shown.map(c=>`<span class="use-match-item"><a class="use-match-link" data-open-client="${c.id}">${c.name}</a><button class="use-match-send" data-prod-idx="${i}" data-client-id="${c.id}" title="Send ${p.name} info to ${c.name}">✉ Send Info</button></span>`).join(', ');
             return `<div class="use-case-matches"><b>Good fit in your portfolio:</b> ${links}${more>0 ? ` <span style="font-weight:500;">+${more} more</span>` : ''}</div>`;
           })()}
         </div>
@@ -2785,6 +2792,20 @@ function renderProducts(){
     el.onclick = ()=>{
       const row = document.querySelector(`.prod-row[data-idx="${el.dataset.toggle}"]`);
       row.classList.toggle('expanded');
+    };
+  });
+  document.querySelectorAll('.use-match-send').forEach(btn=>{
+    btn.onclick = (e)=>{
+      e.stopPropagation();
+      const product = PRODUCTS[parseInt(btn.dataset.prodIdx)];
+      const client = STATE.clients.find(c=>c.id===btn.dataset.clientId);
+      if(!product || !client) return;
+      const subject = `A product that might help: ${product.name}`;
+      const body = `Hi ${client.name} team,\n\nBased on your business, I thought ${product.name} could be a good fit:\n\n${product.desc}\n\n${product.use}\n\nHappy to walk you through the details whenever works for you.\n\nBest,\nNathaniel Young`;
+      window.location.href = `mailto:${client.email||''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      btn.classList.add('sent');
+      btn.textContent = '✓ Draft opened';
+      setTimeout(()=>{ btn.classList.remove('sent'); btn.textContent = '✉ Send Info'; }, 2200);
     };
   });
   bindRowEvents();
