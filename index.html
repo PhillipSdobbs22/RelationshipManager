@@ -212,6 +212,16 @@
   .prod-card p{font-size:13.5px;color:var(--ink-soft);line-height:1.55;margin:0 0 10px;}
   .prod-card ul{margin:0;padding-left:18px;font-size:13px;color:var(--ink);line-height:1.7;}
   .prod-card .use-case{font-size:12.5px;background:var(--cream);border-radius:7px;padding:9px 11px;margin-top:10px;color:var(--ink-soft);font-style:italic;}
+  .use-case{
+    font-size:13px;background:#BFE0DA;border-radius:6px;padding:11px 13px;margin-top:10px;
+    color:var(--navy);font-weight:600;line-height:1.5;
+  }
+  .use-case-matches{
+    display:block;margin-top:9px;padding-top:9px;border-top:1px solid rgba(15,42,63,0.15);
+    font-size:12px;font-weight:500;color:var(--navy);
+  }
+  .use-match-link{color:var(--navy);text-decoration:underline;text-decoration-color:rgba(27,73,101,0.4);cursor:pointer;font-weight:700;}
+  .use-match-link:hover{text-decoration-color:var(--navy);}
   .prod-meta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
   .prod-meta.rate-chip{background:#EFF3F6;border:1px dashed var(--line);}
   .rate-disclaimer{font-size:10.5px;color:var(--ink-soft);font-style:italic;margin-top:6px;}
@@ -2718,6 +2728,16 @@ const CATEGORY_COLORS = {
   "Lending": "#C08B3E",                   // brass
   "Specialty": "#8E6FB0",                 // plum
 };
+/* Clients in the portfolio whose industry preference list includes this
+   product, and who don't already hold it — used to surface real cross-sell
+   matches directly inside the product catalog's "Fit for..." box. */
+function clientsMatchingProduct(product){
+  return STATE.clients.filter(c=>{
+    const prefs = INDUSTRY_PRODUCT_PREFERENCE[c.industry] || [];
+    return prefs.includes(product.name) && !c.heldProducts.includes(product.name);
+  });
+}
+
 function renderProducts(){
   document.getElementById('product-catalog').innerHTML = PRODUCTS.map((p,i)=>{
     const catColor = CATEGORY_COLORS[p.cat] || "#8E6FB0";
@@ -2733,7 +2753,17 @@ function renderProducts(){
       <div class="prod-row-body">
         <p>${p.desc}</p>
         <ul>${p.features.map(f=>`<li>${f}</li>`).join('')}</ul>
-        <div class="use-case">${p.use}</div>
+        <div class="use-case">
+          ${p.use}
+          ${(()=>{
+            const matches = clientsMatchingProduct(p);
+            if(!matches.length) return '';
+            const shown = matches.slice(0,4);
+            const more = matches.length - shown.length;
+            const links = shown.map(c=>`<a class="use-match-link" data-open-client="${c.id}">${c.name}</a>`).join(', ');
+            return `<div class="use-case-matches"><b>Good fit in your portfolio:</b> ${links}${more>0 ? ` <span style="font-weight:500;">+${more} more</span>` : ''}</div>`;
+          })()}
+        </div>
         <div class="prod-meta-row">
           <div class="prod-meta"><div class="pm-lbl">Available Since</div><div class="pm-val">${p.availableSince}</div></div>
           <div class="prod-meta"><div class="pm-lbl">Popularity</div><div class="pm-val">${p.popularity}</div></div>
@@ -2757,6 +2787,7 @@ function renderProducts(){
       row.classList.toggle('expanded');
     };
   });
+  bindRowEvents();
 }
 
 /* ---------------- RENDER: TASKS ---------------- */
