@@ -225,9 +225,10 @@
   .prod-callout.incentive b{color:var(--brass);}
 
   /* Tasks */
+  .task-row-wrap{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:8px;overflow:hidden;}
   .task-row{
-    display:flex;align-items:center;gap:14px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
-    padding:13px 16px;margin-bottom:8px;
+    display:flex;align-items:center;gap:14px;
+    padding:13px 16px;
   }
   .task-row.done{opacity:0.5;}
   .task-row.done .task-title{text-decoration:line-through;}
@@ -238,6 +239,18 @@
   .task-client-link{cursor:pointer;text-decoration:underline;text-decoration-color:transparent;transition:text-decoration-color .15s;width:fit-content;}
   .task-client-link:hover{text-decoration-color:var(--seafoam);}
   .task-due{margin-left:auto;font-size:12px;color:var(--ink-soft);font-family:'JetBrains Mono';white-space:nowrap;}
+  .schedule-meet-btn{
+    background:var(--cream);border:1px solid var(--line);color:var(--harbor);font-size:11.5px;font-weight:600;
+    padding:5px 11px;border-radius:20px;white-space:nowrap;flex-shrink:0;transition:border-color .15s;
+  }
+  .schedule-meet-btn:hover{border-color:var(--seafoam);}
+  .schedule-panel{display:none;padding:0 16px 16px;border-top:1px solid var(--line);}
+  .schedule-panel.open{display:block;padding-top:14px;}
+  .schedule-panel-note{font-size:11.5px;color:var(--ink-soft);margin-bottom:10px;line-height:1.5;}
+  .slot-option{display:flex;align-items:center;gap:10px;background:var(--cream);border-radius:8px;padding:9px 12px;margin-bottom:8px;}
+  .slot-option .slot-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--brass);background:var(--paper);padding:2px 8px;border-radius:20px;flex-shrink:0;}
+  .slot-option .slot-time{font-family:'JetBrains Mono';font-size:13px;color:var(--navy);font-weight:600;}
+  .send-invite-status{font-size:11px;color:var(--good);font-weight:600;margin-top:6px;display:none;}
   .task-due.overdue{color:var(--danger);font-weight:600;}
 
   .empty{text-align:center;padding:60px 20px;color:var(--ink-soft);}
@@ -326,6 +339,7 @@
 
   /* Morning Briefing */
   .brand-mark{cursor:pointer;border-radius:8px;transition:background .15s;padding:4px;margin:-4px;}
+  .brand-mark.current{background:rgba(255,255,255,0.09);}
   .brand-mark:hover, .brand-mark:focus{background:rgba(255,255,255,0.07);outline:none;}
 
   .briefing-teaser{
@@ -367,6 +381,18 @@
   .trend-row{margin-top:18px;}
   .trend-row-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;margin-bottom:6px;}
   .trend-row svg{width:100%;height:auto;display:block;}
+  .cust-chev{transition:transform .2s;}
+  #customize-toggle-btn.expanded .cust-chev{transform:rotate(180deg);}
+  .customize-panel{
+    display:none;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 18px;margin-bottom:16px;gap:16px;flex-wrap:wrap;
+  }
+  .customize-panel.open{display:flex;}
+  .customize-panel label{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink);cursor:pointer;}
+  .brand-notify-dot{
+    position:absolute;top:-1px;right:-1px;width:9px;height:9px;border-radius:50%;
+    background:var(--danger);border:1.5px solid var(--navy);display:none;
+  }
 
   /* Today's Schedule */
   .schedule-panel{margin-top:0;}
@@ -466,19 +492,22 @@
 
   <aside id="sidebar">
     <div class="brand">
-      <div class="brand-mark" id="brand-mark-btn" tabindex="0" role="button" title="View your personal briefing">
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-          <circle cx="15" cy="15" r="13" stroke="#DDB671" stroke-width="1.6"/>
-          <path d="M15 5V25M6 12H24M6 18H24" stroke="#DDB671" stroke-width="1.2" opacity="0.55"/>
-          <circle cx="15" cy="15" r="3.2" fill="#DDB671"/>
-        </svg>
+      <div class="brand-mark current" id="brand-mark-btn" tabindex="0" role="button" title="View your personal briefing">
+        <span style="position:relative;display:inline-flex;">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+            <circle cx="15" cy="15" r="13" stroke="#DDB671" stroke-width="1.6"/>
+            <path d="M15 5V25M6 12H24M6 18H24" stroke="#DDB671" stroke-width="1.2" opacity="0.55"/>
+            <circle cx="15" cy="15" r="3.2" fill="#DDB671"/>
+          </svg>
+          <span class="brand-notify-dot" id="brand-notify-dot" title="Morning check-in not logged yet"></span>
+        </span>
         <h1>Nathaniel Young</h1>
       </div>
       <div class="brand-rank" id="brand-rank"></div>
       <div class="tag">BRM Workbench · Proof of Concept</div>
     </div>
     <nav id="nav">
-      <button data-view="dashboard" class="active">
+      <button data-view="dashboard">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="8" width="3.5" height="6.5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="6.5" y="4" width="3.5" height="10.5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="11.5" y="1.5" width="3.5" height="13" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
         Dashboard
       </button>
@@ -508,17 +537,12 @@
   <main id="main">
 
     <!-- DASHBOARD -->
-    <section id="view-dashboard" class="view active">
+    <section id="view-dashboard" class="view">
       <div class="view-head">
         <div>
           <h2>BRM Personal Dashboard</h2>
           <p>A snapshot of your book of business across the Pensacola–Baldwin County market.</p>
         </div>
-      </div>
-
-      <div class="briefing-teaser" id="briefing-teaser">
-        <span id="teaser-text">☀️ Loading your briefing…</span>
-        <span class="teaser-link">View your full morning briefing →</span>
       </div>
 
       <div class="grid stats" id="stat-cards"></div>
@@ -556,11 +580,22 @@
     </section>
 
     <!-- PERSONAL PROFILE / MORNING BRIEFING -->
-    <section id="view-profile" class="view">
+    <section id="view-profile" class="view active">
       <div class="view-head">
         <div>
           <h2>Your Personal Briefing</h2>
         </div>
+        <button class="btn secondary small" id="customize-toggle-btn">
+          Customize
+          <svg class="cust-chev" width="12" height="12" viewBox="0 0 16 16" fill="none" style="margin-left:5px;vertical-align:-1px;"><path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="customize-panel" id="customize-panel">
+        <label><input type="checkbox" id="cust-weather" checked> Weather</label>
+        <label><input type="checkbox" id="cust-checkin" checked> Morning Check-In</label>
+        <label><input type="checkbox" id="cust-trend" checked> 7-Day Readiness Trend</label>
+        <label><input type="checkbox" id="cust-schedule" checked> Today's Schedule</label>
+        <button type="button" id="cust-reset-btn" style="background:none;border:none;color:var(--harbor);font-size:12px;font-weight:600;text-decoration:underline;cursor:pointer;padding:0;">Reset to defaults</button>
       </div>
 
       <div class="profile-greeting-row">
@@ -580,18 +615,18 @@
 
       <div class="briefing-panel open">
         <div class="briefing-grid">
-          <div class="briefing-block">
+          <div class="briefing-block" id="section-weather">
             <div class="briefing-block-lbl">Local Weather · Pensacola, FL</div>
             <div id="briefing-weather-detail">Loading…</div>
           </div>
-          <div class="briefing-block">
+          <div class="briefing-block" id="section-checkin">
             <div class="briefing-block-lbl">Morning Check-In <span class="tiny-note">(you enter this — not from a device)</span></div>
             <div id="briefing-checkin"></div>
           </div>
         </div>
       </div>
 
-      <div class="card trend-panel">
+      <div class="card trend-panel" id="section-trend">
         <div class="trend-panel-head">
           <h3>7-Day Readiness Trend <span class="beta-badge">Simulated history</span></h3>
           <p>Sleep hours, resting heart rate, and computed readiness — the last 6 days are backfilled with illustrative data so the trend reads immediately; only today reflects a real entry.</p>
@@ -599,7 +634,7 @@
         <div id="trend-charts"></div>
       </div>
 
-      <div class="card schedule-panel">
+      <div class="card schedule-panel" id="section-schedule">
         <div class="trend-panel-head">
           <h3>Today's Schedule <span class="beta-badge">Simulated</span></h3>
           <p>8:00 AM–11:30 AM and 1:00 PM–4:00 PM, with client meetings drawn from accounts that actually need contact in your portfolio.</p>
@@ -1990,7 +2025,6 @@ function weatherFieldNote(code){
 function updateBriefingStripText(){
   const greetingEl = document.getElementById('briefing-strip-greeting');
   const readinessEl = document.getElementById('briefing-strip-readiness');
-  const teaserEl = document.getElementById('teaser-text');
   const name = 'Nathaniel';
   const saved = loadTodaysCheckIn();
 
@@ -1999,9 +2033,6 @@ function updateBriefingStripText(){
     const info = wmoInfo(BRIEFING_WEATHER.code);
     weatherPart = `${info.icon} ${BRIEFING_WEATHER.temp}°F in Pensacola`;
   }
-  const readinessPart = saved
-    ? `Readiness: ${computeReadiness(saved.sleep, saved.hr, saved.energy)}/100`
-    : 'Log your morning check-in';
 
   if(greetingEl) greetingEl.textContent = `Good morning, ${name} — ${weatherPart}`;
   if(readinessEl){
@@ -2012,13 +2043,60 @@ function updateBriefingStripText(){
       readinessEl.textContent = 'Log your morning check-in';
     }
   }
-  if(teaserEl) teaserEl.textContent = `Good morning, ${name} — ${weatherPart} · ${readinessPart}`;
+
+  const dotEl = document.getElementById('brand-notify-dot');
+  if(dotEl) dotEl.style.display = saved ? 'none' : 'block';
+}
+
+/* ---------------- CUSTOMIZE PANEL ---------------- */
+const BRIEFING_SECTION_IDS = {weather:'section-weather', checkin:'section-checkin', trend:'section-trend', schedule:'section-schedule'};
+function loadSectionPrefs(){
+  try{
+    const raw = localStorage.getItem('briefing-section-prefs');
+    return raw ? JSON.parse(raw) : {weather:true, checkin:true, trend:true, schedule:true};
+  } catch(e){ return {weather:true, checkin:true, trend:true, schedule:true}; }
+}
+function saveSectionPrefs(prefs){
+  try{ localStorage.setItem('briefing-section-prefs', JSON.stringify(prefs)); } catch(e){}
+}
+function applySectionPrefs(){
+  const prefs = loadSectionPrefs();
+  Object.keys(BRIEFING_SECTION_IDS).forEach(key=>{
+    const el = document.getElementById(BRIEFING_SECTION_IDS[key]);
+    if(el) el.style.display = prefs[key]===false ? 'none' : '';
+    const cb = document.getElementById('cust-'+key);
+    if(cb) cb.checked = prefs[key]!==false;
+  });
+}
+function initCustomizePanel(){
+  const toggleBtn = document.getElementById('customize-toggle-btn');
+  const panel = document.getElementById('customize-panel');
+  if(!toggleBtn || !panel) return;
+  toggleBtn.onclick = ()=>{
+    const isOpen = panel.classList.toggle('open');
+    toggleBtn.classList.toggle('expanded', isOpen);
+  };
+  Object.keys(BRIEFING_SECTION_IDS).forEach(key=>{
+    const cb = document.getElementById('cust-'+key);
+    if(!cb) return;
+    cb.onchange = ()=>{
+      const prefs = loadSectionPrefs();
+      prefs[key] = cb.checked;
+      saveSectionPrefs(prefs);
+      applySectionPrefs();
+    };
+  });
+  const resetBtn = document.getElementById('cust-reset-btn');
+  if(resetBtn){
+    resetBtn.onclick = ()=>{
+      try{ localStorage.removeItem('briefing-section-prefs'); } catch(e){}
+      applySectionPrefs();
+    };
+  }
+  applySectionPrefs();
 }
 
 async function initMorningBriefing(){
-  const teaser = document.getElementById('briefing-teaser');
-  if(teaser) teaser.onclick = ()=> switchView('profile');
-
   const brandBtn = document.getElementById('brand-mark-btn');
   if(brandBtn){
     brandBtn.onclick = ()=> switchView('profile');
@@ -2028,6 +2106,7 @@ async function initMorningBriefing(){
   const trackerBtn = document.getElementById('tracker-sync-btn');
   if(trackerBtn) trackerBtn.onclick = runTrackerSync;
 
+  initCustomizePanel();
   renderCheckInForm();
   renderSchedule();
   renderTrendCharts();
@@ -2053,23 +2132,45 @@ async function initMorningBriefing(){
   updateBriefingStripText();
 }
 
+let COPILOT_COACHMARK_TIMER = null;
+function stopCopilotCoachmark(input){
+  if(COPILOT_COACHMARK_TIMER){ clearInterval(COPILOT_COACHMARK_TIMER); COPILOT_COACHMARK_TIMER = null; }
+  try{ localStorage.setItem('copilot-used', '1'); } catch(e){}
+  if(input) input.placeholder = 'Ask about your book…';
+}
+function startCopilotCoachmark(input){
+  let used = false;
+  try{ used = localStorage.getItem('copilot-used') === '1'; } catch(e){}
+  if(used){ input.placeholder = 'Ask about your book…'; return; }
+  const examples = ['Try: at-risk clients in Fairhope…','Try: highest deposits…','Try: clients with no products…','Try: most efficient routing…'];
+  let i = 0;
+  input.placeholder = examples[0];
+  COPILOT_COACHMARK_TIMER = setInterval(()=>{
+    if(document.activeElement===input || input.value){ return; } // don't fight typing
+    i = (i+1) % examples.length;
+    input.placeholder = examples[i];
+  }, 2600);
+}
+
 function initCopilot(){
   const askBtn = document.getElementById('copilot-ask-btn');
   const input = document.getElementById('copilot-input');
   if(!askBtn || !input) return;
   askBtn.onclick = ()=>{
     const q = input.value.trim();
-    if(q) runCopilot(q);
+    if(q){ stopCopilotCoachmark(input); runCopilot(q); }
   };
   input.addEventListener('keydown', (e)=>{
     if(e.key==='Enter'){ e.preventDefault(); askBtn.click(); }
   });
   document.querySelectorAll('.chip-btn').forEach(chip=>{
     chip.onclick = ()=>{
+      stopCopilotCoachmark(input);
       input.value = chip.dataset.q;
       runCopilot(chip.dataset.q);
     };
   });
+  startCopilotCoachmark(input);
 }
 
 function renderDashboard(){
@@ -2182,16 +2283,130 @@ function clientRowHTML(cl, showRoute){
   </div>`;
 }
 
+/* ---------------- SCHEDULE MEETING (proof-of-concept scope) ----------------
+   For TODAY: checks real availability against the actual generated Today's
+   Schedule, so it won't suggest a time that's genuinely already blocked.
+   For a FUTURE due date: there's no real calendar to check in this demo, so
+   two illustrative slots are offered instead, deterministically seeded per
+   task+date and clearly labeled as simulated. Either way, the invite always
+   offers two options and asks the client to confirm — this app has no way
+   to see the client's actual calendar, so a single-slot "booking" would be
+   overclaiming what a one-way tool like this can actually guarantee. */
+const WORK_WINDOWS = [[8,0,11,30],[13,0,16,0]];
+function candidateSlots(){
+  const slots = [];
+  WORK_WINDOWS.forEach(([sh,sm,eh,em])=>{
+    let h=sh, m=sm;
+    while(h<eh || (h===eh && m<em)){
+      slots.push([h,m]);
+      m += 30; if(m>=60){ m=0; h++; }
+    }
+  });
+  return slots;
+}
+function addDaysKey(dateKey, n){
+  const d = new Date(dateKey+'T00:00:00');
+  d.setDate(d.getDate()+n);
+  return d.toISOString().slice(0,10);
+}
+function fmtSlotDate(dateKey){
+  const d = new Date(dateKey+'T00:00:00');
+  return d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+}
+
+function findMeetingSlots(taskId, dueDateKey){
+  const all = candidateSlots();
+  if(dueDateKey === todayKey()){
+    const busy = generateDaySchedule().filter(it=>!it.lunch).map(it=>({
+      start: it.start[0]*60+it.start[1], end: it.end[0]*60+it.end[1]
+    }));
+    const free = all.filter(([h,m])=>{
+      const t = h*60+m;
+      return !busy.some(b => t >= b.start && t < b.end);
+    });
+    if(free.length >= 2){
+      return { dateKey: dueDateKey, slots: [free[0], free[1]], real: true };
+    }
+    // Today's real schedule doesn't have 2 open slots — fall through to next business day, simulated.
+  }
+  const targetDate = dueDateKey === todayKey() ? addDaysKey(dueDateKey, 1) : dueDateKey;
+  const rng = seededRandom('meetslot-'+taskId+'-'+targetDate);
+  let idxA = Math.floor(rng()*all.length);
+  let idxB = Math.floor(rng()*all.length);
+  if(idxB===idxA) idxB = (idxA+4) % all.length;
+  const sorted = [all[idxA], all[idxB]].sort((a,b)=>(a[0]*60+a[1])-(b[0]*60+b[1]));
+  return { dateKey: targetDate, slots: sorted, real: false };
+}
+
+function generateMeetingICS(client, dateKey, hm, taskTitle){
+  const now = new Date();
+  const start = new Date(dateKey+'T00:00:00');
+  start.setHours(hm[0], hm[1], 0, 0);
+  const end = new Date(start.getTime() + 30*60000);
+  const fmt = d => d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  const uid = 'meet-'+client.id+'-'+Date.now()+'@personal-brm-demo.local';
+  return [
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Personal BRM Demo//EN','BEGIN:VEVENT',
+    'UID:'+uid, 'DTSTAMP:'+fmt(now), 'DTSTART:'+fmt(start), 'DTEND:'+fmt(end),
+    'SUMMARY:'+taskTitle+' — Nathaniel Young & '+client.name,
+    'DESCRIPTION:Proposed meeting regarding: '+taskTitle,
+    'END:VEVENT','END:VCALENDAR'
+  ].join('\r\n');
+}
+function downloadMeetingICS(client, dateKey, hm, taskTitle){
+  const blob = new Blob([generateMeetingICS(client, dateKey, hm, taskTitle)], {type:'text/calendar'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'proposed-meeting-'+client.name.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.ics';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function renderSchedulePanel(taskId){
+  const t = STATE.tasks.find(x=>x.id===taskId);
+  const panel = document.getElementById('schedule-panel-'+taskId);
+  if(!t || !panel) return;
+  const client = STATE.clients.find(c=>c.id===t.clientId);
+  const result = findMeetingSlots(taskId, t.due);
+  const [a, b] = result.slots;
+  panel.innerHTML = `
+    <div class="schedule-panel-note">${result.real
+      ? `Checked against your actual schedule for ${fmtSlotDate(result.dateKey)} — both times below are genuinely open.`
+      : `No real calendar exists for ${fmtSlotDate(result.dateKey)} in this demo — these two times are illustrative, not checked against anything.`}</div>
+    <div class="slot-option"><span class="slot-tag">Option A</span><span class="slot-time">${fmtSlotDate(result.dateKey)}, ${fmtTime12(...a)}</span></div>
+    <div class="slot-option"><span class="slot-tag">Option B</span><span class="slot-time">${fmtSlotDate(result.dateKey)}, ${fmtTime12(...b)}</span></div>
+    <button class="btn small" id="send-invite-${taskId}">Send Invite</button>
+    <div class="send-invite-status" id="invite-status-${taskId}"></div>
+  `;
+  document.getElementById('send-invite-'+taskId).onclick = ()=>{
+    if(!client){ return; }
+    downloadMeetingICS(client, result.dateKey, a, t.title);
+    const subject = `Meeting request: ${t.title}`;
+    const body = `Hi ${client.name} team,\n\nCould we find time for: ${t.title}?\n\nOption A: ${fmtSlotDate(result.dateKey)} at ${fmtTime12(...a)}\nOption B: ${fmtSlotDate(result.dateKey)} at ${fmtTime12(...b)}\n\nEither works on my end — just reply with the one that's better for you and I'll send a calendar invite.\n\nBest,\nNathaniel Young`;
+    window.location.href = `mailto:${client.email||''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const statusEl = document.getElementById('invite-status-'+taskId);
+    if(statusEl){
+      statusEl.textContent = '✓ Calendar file downloaded & draft opened — offering both options';
+      statusEl.style.display = 'block';
+    }
+  };
+}
+
 function taskRowHTML(t){
   const d = daysUntil(t.due);
   const overdue = d<0 && !t.done;
-  return `<div class="task-row ${t.done?'done':''}" data-id="${t.id}">
-    <div class="checkbox ${t.done?'checked':''}" data-task="${t.id}">${t.done?'✓':''}</div>
-    <div>
-      <div class="task-title">${t.title}</div>
-      <div class="task-client task-client-link" data-open-client="${t.clientId}">${t.clientName}</div>
+  return `<div class="task-row-wrap" data-task-wrap="${t.id}">
+    <div class="task-row ${t.done?'done':''}" data-id="${t.id}">
+      <div class="checkbox ${t.done?'checked':''}" data-task="${t.id}">${t.done?'✓':''}</div>
+      <div>
+        <div class="task-title">${t.title}</div>
+        <div class="task-client task-client-link" data-open-client="${t.clientId}">${t.clientName}</div>
+      </div>
+      ${!t.done ? `<button class="schedule-meet-btn" data-schedule-task="${t.id}">📅 Schedule Meeting</button>` : ''}
+      <div class="task-due ${overdue?'overdue':''}">${overdue? 'Overdue · ' : ''}${fmtDate(t.due)}</div>
     </div>
-    <div class="task-due ${overdue?'overdue':''}">${overdue? 'Overdue · ' : ''}${fmtDate(t.due)}</div>
+    <div class="schedule-panel" id="schedule-panel-${t.id}"></div>
   </div>`;
 }
 
@@ -2229,6 +2444,16 @@ function bindRowEvents(){
         switchView('clients');
         openClientDrawer(clientId);
       }
+    };
+  });
+  document.querySelectorAll('[data-schedule-task]').forEach(btn=>{
+    btn.onclick = (e)=>{
+      e.stopPropagation();
+      const taskId = btn.dataset.scheduleTask;
+      const panel = document.getElementById('schedule-panel-'+taskId);
+      if(!panel) return;
+      const isOpen = panel.classList.toggle('open');
+      if(isOpen) renderSchedulePanel(taskId);
     };
   });
 }
@@ -2513,6 +2738,8 @@ function switchView(view){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+view).classList.add('active');
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
+  const brandBtn = document.getElementById('brand-mark-btn');
+  if(brandBtn) brandBtn.classList.toggle('current', view==='profile');
   if(view==='exec') renderExec();
 }
 
