@@ -1494,11 +1494,12 @@ async function loadState(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw){
       STATE = JSON.parse(raw);
+      if(!STATE.sentInfo) STATE.sentInfo = {}; // backward compat for saves made before this feature existed
       return;
     }
   }catch(e){ console.error('load failed', e); }
   const clients = seedClients();
-  STATE = { clients, tasks: seedTasks(clients) };
+  STATE = { clients, tasks: seedTasks(clients), sentInfo: {} };
   await saveState();
 }
 async function saveState(){
@@ -2767,7 +2768,12 @@ function renderProducts(){
             if(!matches.length) return '';
             const shown = matches.slice(0,4);
             const more = matches.length - shown.length;
-            const links = shown.map(c=>`<span class="use-match-item"><a class="use-match-link" data-open-client="${c.id}">${c.name}</a><button class="use-match-send" data-prod-idx="${i}" data-client-id="${c.id}" title="Send ${p.name} info to ${c.name}">✉ Send Info</button></span>`).join(', ');
+            const links = shown.map(c=>{
+              const sentDate = STATE.sentInfo && STATE.sentInfo[c.id+'|'+p.name];
+              const btnLabel = sentDate ? `✓ Sent ${fmtDate(sentDate)}` : '✉ Send Info';
+              const btnClass = sentDate ? 'use-match-send sent' : 'use-match-send';
+              return `<span class="use-match-item"><a class="use-match-link" data-open-client="${c.id}">${c.name}</a><button class="${btnClass}" data-prod-idx="${i}" data-client-id="${c.id}" title="Send ${p.name} info to ${c.name}">${btnLabel}</button></span>`;
+            }).join(', ');
             return `<div class="use-case-matches"><b>Good fit in your portfolio:</b> ${links}${more>0 ? ` <span style="font-weight:500;">+${more} more</span>` : ''}</div>`;
           })()}
         </div>
@@ -2795,7 +2801,7 @@ function renderProducts(){
     };
   });
   document.querySelectorAll('.use-match-send').forEach(btn=>{
-    btn.onclick = (e)=>{
+    btn.onclick = async (e)=>{
       e.stopPropagation();
       const product = PRODUCTS[parseInt(btn.dataset.prodIdx)];
       const client = STATE.clients.find(c=>c.id===btn.dataset.clientId);
@@ -2803,9 +2809,13 @@ function renderProducts(){
       const subject = `A product that might help: ${product.name}`;
       const body = `Hi ${client.name} team,\n\nBased on your business, I thought ${product.name} could be a good fit:\n\n${product.desc}\n\n${product.use}\n\nHappy to walk you through the details whenever works for you.\n\nBest,\nNathaniel Young`;
       window.location.href = `mailto:${client.email||''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const todayStr = new Date().toISOString().slice(0,10);
+      if(!STATE.sentInfo) STATE.sentInfo = {};
+      STATE.sentInfo[client.id+'|'+product.name] = todayStr;
+      await saveState();
       btn.classList.add('sent');
-      btn.textContent = '✓ Draft opened';
-      setTimeout(()=>{ btn.classList.remove('sent'); btn.textContent = '✉ Send Info'; }, 2200);
+      btn.textContent = `✓ Sent ${fmtDate(todayStr)}`;
+      btn.title = `Draft opened ${fmtDate(todayStr)} — click to send again`;
     };
   });
   bindRowEvents();
