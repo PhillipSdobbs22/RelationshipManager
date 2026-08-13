@@ -447,9 +447,14 @@
   @media (max-width:820px){ .agenda-actions{padding-left:0;} }
   .checkin-row label{font-size:12px;color:var(--ink-soft);width:110px;flex-shrink:0;}
   .checkin-row input{flex:1;border:1.5px solid var(--line);border-radius:7px;padding:7px 10px;font-size:13px;background:var(--cream);}
-  .readiness-score{display:flex;align-items:center;gap:12px;margin-top:6px;padding-top:10px;border-top:1px solid var(--line);}
-  .readiness-score .rs-val{font-family:'JetBrains Mono';font-size:24px;font-weight:700;}
-  .readiness-score .rs-lbl{font-size:11.5px;color:var(--ink-soft);}
+  .readiness-hero{display:flex;align-items:center;gap:18px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line);}
+  .rs-ring-wrap{position:relative;width:100px;height:100px;flex-shrink:0;}
+  .rs-ring{width:100%;height:100%;}
+  .rs-ring-fg{transition:none;}
+  .rs-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:34px;font-weight:700;}
+  .rs-hero-text{flex:1;min-width:0;}
+  .rs-hero-tone{font-size:14.5px;font-weight:600;color:var(--navy);line-height:1.4;}
+  .rs-hero-detail{font-size:12px;color:var(--ink-soft);margin-top:6px;}
   @media (max-width:820px){ .briefing-grid{grid-template-columns:1fr;} }
   .stop-badge{
     width:26px;height:26px;border-radius:50%;background:var(--brass);color:var(--navy);flex-shrink:0;
@@ -1957,20 +1962,66 @@ function renderTrendCharts(){
   `;
 }
 
+function readinessColor(score){
+  if(score>=89) return '#3F7D5C';  // 100–89: green
+  if(score>=79) return '#5FA87E';  // 88–79: light green
+  if(score>=69) return '#C9A227';  // 78–69: yellow
+  if(score>=59) return '#C0752E';  // 68–59: orange
+  return '#B4534A';                // 58 and below: red
+}
+
+function readinessTone(score){
+  if(score>=85) return 'Strong start — good day to push on the harder conversations.';
+  if(score>=65) return 'Solid footing today.';
+  return 'Lighter day recommended — lean on admin over high-stakes calls.';
+}
+
+function animateReadinessRing(targetScore){
+  const numEl = document.getElementById('rs-hero-num');
+  const ringEl = document.getElementById('rs-ring-fg');
+  if(!numEl || !ringEl) return;
+  const r = 42, circumference = 2*Math.PI*r;
+  const duration = 700;
+  const start = performance.now();
+  function frame(now){
+    const elapsed = now - start;
+    const t = Math.min(1, elapsed/duration);
+    const eased = 1 - Math.pow(1-t, 3);
+    numEl.textContent = Math.round(eased*targetScore);
+    ringEl.style.strokeDashoffset = circumference * (1 - eased*(targetScore/100));
+    if(t<1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
 function renderCheckInForm(){
   const el = document.getElementById('briefing-checkin');
   if(!el) return;
   const saved = loadTodaysCheckIn();
   if(saved){
     const score = computeReadiness(saved.sleep, saved.hr, saved.energy);
+    const color = readinessColor(score);
+    const r = 42, circumference = 2*Math.PI*r;
     el.innerHTML = `
-      <div class="readiness-score">
-        <div class="rs-val" style="color:${healthColor(score)}">${score}</div>
-        <div class="rs-lbl">Readiness score today<br>${saved.sleep}h sleep · ${saved.hr} bpm resting HR · energy ${saved.energy}/5</div>
+      <div class="readiness-hero">
+        <div class="rs-ring-wrap">
+          <svg class="rs-ring" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="${r}" fill="none" stroke="var(--line)" stroke-width="8"/>
+            <circle id="rs-ring-fg" cx="50" cy="50" r="${r}" fill="none" stroke="${color}" stroke-width="8"
+              stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}"
+              transform="rotate(-90 50 50)"/>
+          </svg>
+          <div class="rs-ring-num" id="rs-hero-num" style="color:${color}">0</div>
+        </div>
+        <div class="rs-hero-text">
+          <div class="rs-hero-tone">${readinessTone(score)}</div>
+          <div class="rs-hero-detail">${saved.sleep}h sleep · ${saved.hr} bpm resting HR · energy ${saved.energy}/5</div>
+        </div>
       </div>
-      <button class="btn secondary small" id="checkin-edit-btn" style="margin-top:10px;">Update check-in</button>
+      <button class="btn secondary small" id="checkin-edit-btn" style="margin-top:14px;">Update check-in</button>
     `;
     document.getElementById('checkin-edit-btn').onclick = ()=> renderCheckInInputs(saved);
+    animateReadinessRing(score);
   } else {
     renderCheckInInputs({sleep:7.5, hr:62, energy:4});
   }
@@ -2061,7 +2112,7 @@ function updateBriefingStripText(){
   if(readinessEl){
     if(saved){
       const score = computeReadiness(saved.sleep, saved.hr, saved.energy);
-      readinessEl.innerHTML = `Readiness: <b style="color:${healthColor(score)}">${score}/100</b>`;
+      readinessEl.innerHTML = `Readiness: <b style="color:${readinessColor(score)}">${score}/100</b>`;
     } else {
       readinessEl.textContent = 'Log your morning check-in';
     }
