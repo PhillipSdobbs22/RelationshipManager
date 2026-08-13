@@ -271,7 +271,14 @@
   .schedule-panel-note{font-size:11.5px;color:var(--ink-soft);margin-bottom:10px;line-height:1.5;}
   .slot-option{display:flex;align-items:center;gap:10px;background:var(--cream);border-radius:8px;padding:9px 12px;margin-bottom:8px;}
   .slot-option .slot-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--brass);background:var(--paper);padding:2px 8px;border-radius:20px;flex-shrink:0;}
-  .slot-option .slot-time{font-family:'JetBrains Mono';font-size:13px;color:var(--navy);font-weight:600;}
+  .slot-option .slot-time{font-family:'JetBrains Mono';font-size:13px;color:var(--navy);font-weight:600;flex:1;}
+  .slot-steppers{display:flex;flex-direction:column;gap:2px;flex-shrink:0;}
+  .slot-step-btn{
+    background:var(--paper);border:1px solid var(--line);color:var(--harbor);cursor:pointer;
+    width:22px;height:16px;line-height:1;font-size:9px;padding:0;border-radius:4px;
+    display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s;
+  }
+  .slot-step-btn:hover{border-color:var(--seafoam);background:#EAF3F1;color:var(--navy);}
   .send-invite-status{font-size:11px;color:var(--good);font-weight:600;margin-top:6px;display:none;}
   .task-due.overdue{color:var(--danger);font-weight:600;}
 
@@ -2448,24 +2455,81 @@ function downloadMeetingICS(client, dateKey, hm, taskTitle){
    client, a seed key (for deterministic slot selection), a preferred due
    date, and a title to use in the ICS/email. Used by both task rows and
    client rows so the scheduling logic only lives in one place. */
+/* Steps a proposed slot forward/backward through the day's candidate times.
+   Wraps across day boundaries — stepping past the last slot of the day moves
+   to the first slot of the next day (and vice versa), so this one control
+   can shift both the time and, when needed, the date. */
+function stepSlot(dateKey, hm, dir){
+  const slots = candidateSlots();
+  const idx = slots.findIndex(s=>s[0]===hm[0] && s[1]===hm[1]);
+  let newIdx = idx + dir;
+  let newDateKey = dateKey;
+  if(newIdx < 0){ newIdx = slots.length-1; newDateKey = addDaysKey(dateKey, -1); }
+  if(newIdx >= slots.length){ newIdx = 0; newDateKey = addDaysKey(dateKey, 1); }
+  return { dateKey: newDateKey, hm: slots[newIdx] };
+}
+
 function renderMeetingPicker(panelEl, client, seedKey, dueDateKey, meetingTitle){
   if(!client || !panelEl) return;
   const result = findMeetingSlots(seedKey, dueDateKey);
-  const [a, b] = result.slots;
   const nonce = 'n'+Math.random().toString(36).slice(2);
+  let optA = { dateKey: result.dateKey, hm: result.slots[0] };
+  let optB = { dateKey: result.dateKey, hm: result.slots[1] };
+  let adjusted = false;
+  const wasReal = result.real;
+
   panelEl.innerHTML = `
-    <div class="schedule-panel-note">${result.real
-      ? `Checked against your actual schedule for ${fmtSlotDate(result.dateKey)} — both times below are genuinely open.`
-      : `No real calendar exists for ${fmtSlotDate(result.dateKey)} in this demo — these two times are illustrative, not checked against anything.`}</div>
-    <div class="slot-option"><span class="slot-tag">Option A</span><span class="slot-time">${fmtSlotDate(result.dateKey)}, ${fmtTime12(...a)}</span></div>
-    <div class="slot-option"><span class="slot-tag">Option B</span><span class="slot-time">${fmtSlotDate(result.dateKey)}, ${fmtTime12(...b)}</span></div>
+    <div class="schedule-panel-note" data-note="${nonce}"></div>
+    <div class="slot-option">
+      <span class="slot-tag">Option A</span>
+      <span class="slot-time" data-slot-label="A-${nonce}"></span>
+      <div class="slot-steppers">
+        <button class="slot-step-btn" data-slot="A" data-nonce="${nonce}" data-dir="1" title="Later">▲</button>
+        <button class="slot-step-btn" data-slot="A" data-nonce="${nonce}" data-dir="-1" title="Earlier">▼</button>
+      </div>
+    </div>
+    <div class="slot-option">
+      <span class="slot-tag">Option B</span>
+      <span class="slot-time" data-slot-label="B-${nonce}"></span>
+      <div class="slot-steppers">
+        <button class="slot-step-btn" data-slot="B" data-nonce="${nonce}" data-dir="1" title="Later">▲</button>
+        <button class="slot-step-btn" data-slot="B" data-nonce="${nonce}" data-dir="-1" title="Earlier">▼</button>
+      </div>
+    </div>
     <button class="btn small" data-nonce="${nonce}">Send Invite</button>
     <div class="send-invite-status" data-status="${nonce}"></div>
   `;
-  panelEl.querySelector(`[data-nonce="${nonce}"]`).onclick = ()=>{
-    downloadMeetingICS(client, result.dateKey, a, meetingTitle);
+
+  function refreshDisplay(){
+    const noteEl = panelEl.querySelector(`[data-note="${nonce}"]`);
+    if(noteEl){
+      noteEl.textContent = adjusted
+        ? `Manually adjusted — no longer checked against your real schedule for either date.`
+        : (wasReal
+            ? `Checked against your actual schedule for ${fmtSlotDate(result.dateKey)} — both times below are genuinely open.`
+            : `No real calendar exists for ${fmtSlotDate(result.dateKey)} in this demo — these two times are illustrative, not checked against anything.`);
+    }
+    const aEl = panelEl.querySelector(`[data-slot-label="A-${nonce}"]`);
+    const bEl = panelEl.querySelector(`[data-slot-label="B-${nonce}"]`);
+    if(aEl) aEl.textContent = `${fmtSlotDate(optA.dateKey)}, ${fmtTime12(...optA.hm)}`;
+    if(bEl) bEl.textContent = `${fmtSlotDate(optB.dateKey)}, ${fmtTime12(...optB.hm)}`;
+  }
+  refreshDisplay();
+
+  panelEl.querySelectorAll(`[data-nonce="${nonce}"][data-dir]`).forEach(btn=>{
+    btn.onclick = ()=>{
+      const dir = parseInt(btn.dataset.dir);
+      adjusted = true;
+      if(btn.dataset.slot==='A') optA = stepSlot(optA.dateKey, optA.hm, dir);
+      else optB = stepSlot(optB.dateKey, optB.hm, dir);
+      refreshDisplay();
+    };
+  });
+
+  panelEl.querySelector(`button[data-nonce="${nonce}"]:not([data-dir])`).onclick = ()=>{
+    downloadMeetingICS(client, optA.dateKey, optA.hm, meetingTitle);
     const subject = `Meeting request: ${meetingTitle}`;
-    const body = `Hi ${client.name} team,\n\nCould we find time for: ${meetingTitle}?\n\nOption A: ${fmtSlotDate(result.dateKey)} at ${fmtTime12(...a)}\nOption B: ${fmtSlotDate(result.dateKey)} at ${fmtTime12(...b)}\n\nEither works on my end — just reply with the one that's better for you and I'll send a calendar invite.\n\nBest,\nNathaniel Young`;
+    const body = `Hi ${client.name} team,\n\nCould we find time for: ${meetingTitle}?\n\nOption A: ${fmtSlotDate(optA.dateKey)} at ${fmtTime12(...optA.hm)}\nOption B: ${fmtSlotDate(optB.dateKey)} at ${fmtTime12(...optB.hm)}\n\nEither works on my end — just reply with the one that's better for you and I'll send a calendar invite.\n\nBest,\nNathaniel Young`;
     window.location.href = `mailto:${client.email||''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     const statusEl = panelEl.querySelector(`[data-status="${nonce}"]`);
     if(statusEl){
